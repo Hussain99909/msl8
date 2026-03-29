@@ -1,0 +1,874 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>صانع الجلسات الطبي</title>
+    
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+    <style>
+        :root {
+            --primary: #3498db;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --dark: #2c3e50;
+            --bg: #f4f6f8;
+            --warning: #f39c12;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            background: var(--bg);
+            margin: 0;
+            padding: 0;
+            overscroll-behavior-y: none;
+        }
+        * { box-sizing: border-box; }
+
+        /* --- شاشة الدخول --- */
+        #loginScreen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            z-index: 1000; padding: 20px;
+        }
+        .login-box {
+            background: rgba(255,255,255,0.95); padding: 30px 20px; border-radius: 15px;
+            width: 100%; max-width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+        .login-box input {
+            width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #ddd;
+            border-radius: 8px; font-size: 16px; text-align: center; outline: none;
+        }
+        .login-box input:focus { border-color: var(--primary); }
+        .login-box button {
+            width: 100%; padding: 12px; background: var(--primary); color: white;
+            border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer;
+        }
+
+        /* --- الواجهة الرئيسية --- */
+        #mainScreen { display: none; padding-bottom: 80px; }
+        .header {
+            background: var(--dark); color: white; padding: 10px 15px;
+            position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;}
+        .header-bottom { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none;}
+        .header-bottom::-webkit-scrollbar { display: none; }
+        
+        .nav-btn {
+            background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);
+            padding: 6px 12px; border-radius: 20px; font-size: 13px; white-space: nowrap; cursor: pointer;
+        }
+        .nav-btn:active { background: rgba(255,255,255,0.3); }
+
+        .search-container { padding: 15px; position: relative; }
+        .search-input {
+            width: 100%; padding: 15px; border: 2px solid var(--primary);
+            border-radius: 10px; font-size: 16px; outline: none; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        }
+        
+        /* --- تنسيقات القوائم والأسماء لضمان البقاء في نفس السطر --- */
+        .suggestions {
+            position: absolute; top: 65px; left: 15px; right: 15px; background: white;
+            border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); max-height: 250px;
+            overflow-y: auto; z-index: 200; display: none; margin: 0; padding: 0; list-style: none;
+        }
+        .suggestions li { 
+            padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 15px; font-weight: bold;
+            display: flex; justify-content: space-between; align-items: center; cursor: pointer;
+            gap: 10px; /* مسافة ثابتة بين الاسم والاحتياج */
+        }
+        .suggestions li.has-need { background-color: #e3f2fd !important; color: #0d47a1 !important; border-right: 4px solid #1976d2; }
+        
+        .need-badge { 
+            background: #1976d2 !important; color: white !important; padding: 4px 10px; 
+            border-radius: 12px; font-size: 13px; font-weight: bold;
+            white-space: nowrap !important; /* منع الاحتياج من النزول لسطر جديد */
+            flex-shrink: 0; /* منع المربع من الانكماش */
+        }
+
+        .items-list { padding: 10px 15px; }
+        .item-card {
+            background: white; border-radius: 10px; padding: 15px; margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-right: 4px solid var(--primary);
+            display: flex; flex-direction: column; gap: 10px;
+        }
+        .item-card.has-need-card { border-right-color: #1976d2 !important; background-color: #f0f8ff !important; }
+        
+        .item-title { 
+            font-weight: bold; color: var(--dark); font-size: 15px; 
+            display: flex; justify-content: space-between; align-items: center;
+            gap: 10px; /* مسافة ثابتة بين الاسم والاحتياج */
+        }
+        
+        /* ضبط اسم المادة ليأخذ المساحة المتاحة ويلتف داخلياً إذا كان طويلاً جداً */
+        .item-title span:first-child, .suggestions li span:first-child {
+            flex: 1;
+            word-break: break-word;
+            text-align: right;
+        }
+
+        .item-controls { display: flex; gap: 10px; align-items: center; }
+        .item-controls input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 8px; text-align: center; font-size: 16px; font-weight: bold; }
+        .item-controls input.auto-filled { border: 2px solid #27ae60; background-color: #eafaf1; color: #27ae60;}
+        .btn-remove { background: #ffebee; color: var(--danger); border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; }
+
+        /* --- الشريط السفلي --- */
+        .bottom-bar {
+            position: fixed; bottom: 0; left: 0; width: 100%; background: white;
+            padding: 10px 15px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
+            display: flex; gap: 10px; justify-content: space-between; align-items: center; z-index: 100;
+        }
+        .btn-save { background: var(--warning); color: white; padding: 12px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; width: 35%; }
+        .btn-send { background: var(--success); color: white; padding: 12px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; width: 65%; }
+
+        /* --- النوافذ المنبثقة --- */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 300;
+        }
+        .modal-content { background: white; width: 90%; max-height: 80vh; overflow-y: auto; border-radius: 15px; padding: 20px; text-align: center; }
+        .user-btn { width: 100%; padding: 15px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 10px; font-size: 16px; font-weight: bold; background: #f9f9f9; cursor: pointer; }
+        .user-btn:active { background: #e8f0fe; border-color: var(--primary); }
+        .close-btn { margin-top:15px; padding:10px; border:none; background:#ccc; border-radius:8px; width:100%; font-weight:bold; cursor: pointer; }
+
+        /* تنسيقات قوائم الأرشيف */
+        .archive-card { background: #f9f9f9; border: 1px solid #eee; border-radius: 10px; padding: 15px; margin-bottom: 10px; text-align: right; }
+        .archive-title { font-weight: bold; color: var(--primary); margin-bottom: 5px; }
+        .archive-details { font-size: 13px; color: #666; margin-bottom: 10px; }
+        .archive-actions { display: flex; gap: 5px; }
+        .archive-actions button { flex: 1; padding: 8px; border: none; border-radius: 5px; font-weight: bold; color: white; cursor: pointer; }
+        .btn-load { background: var(--primary); }
+        .btn-delete { background: var(--danger); }
+
+        /* --- تنسيقات نافذة المراسلة --- */
+        .message-bubble { max-width: 85%; padding: 10px 12px; border-radius: 12px; margin-bottom: 8px; position: relative; font-size: 14px; word-wrap: break-word; }
+        .msg-sent { align-self: flex-end; background-color: #dcf8c6; border-top-left-radius: 0; border: 1px solid #c8e6b1; }
+        .msg-received { align-self: flex-start; background-color: white; border-top-right-radius: 0; border: 1px solid #ddd; }
+    </style>
+</head>
+<body>
+
+    <div id="loginScreen">
+        <div class="login-box">
+            <h2 style="color: var(--dark); margin-bottom: 5px;">صانع الجلسات</h2>
+            <p style="color: #666; font-size: 14px; margin-bottom: 20px;">نسخة الجوال الملحقة</p>
+            <input type="text" id="username" placeholder="اسم المستخدم">
+            <input type="password" id="password" placeholder="كلمة المرور">
+            <button onclick="login()">دخول</button>
+            <div id="loginErr" style="color:red; margin-top:10px; display:none;">بيانات خاطئة</div>
+        </div>
+    </div>
+
+    <div id="mainScreen">
+        <div class="header">
+            <div class="header-top">
+                <div style="font-weight: bold; font-size: 18px; display: flex; align-items: center; gap: 10px;">
+                    <span>مرحباً د. <span id="userNameDisplay"></span></span>
+                    
+                    <button onclick="openModal('chatModal'); renderChatUsersList();" class="nav-btn" style="position: relative; background: #27ae60; border-color: #27ae60; padding: 4px 10px; font-size: 11px;">
+                        💬 مراسلة
+                        <span id="globalUnreadBadge" style="display:none; position:absolute; top:-6px; right:-6px; background:#e74c3c; color:white; border-radius:50%; font-size:11px; padding:2px 6px; font-weight:bold; box-shadow:0 1px 3px rgba(0,0,0,0.3);">0</span>
+                    </button>
+
+                    <button onclick="logout()" class="nav-btn" style="color: #ffcccc; border-color: #ffcccc; padding: 4px 10px; font-size: 11px;">🚪 خروج</button>
+                </div>
+                <button onclick="fetchCloudDB()" style="background:none; border:none; color:white; font-size:20px; cursor:pointer;">🔄 اختيار نسخة قاعدة بيانات </button>
+            </div>
+            <div class="header-bottom">
+                <button onclick="openModal('savedSessionsModal')" class="nav-btn">📁 المحفوظة</button>
+                <button onclick="openModal('sentSessionsModal')" class="nav-btn">📤 المرسلة</button>
+                <button onclick="clearPage()" class="nav-btn" style="color: #f39c12; border-color: #f39c12;">🗑️ تفريغ الصفحة</button>
+            </div>
+        </div>
+
+        <div class="search-container">
+            <input type="text" class="search-input" id="searchInput" placeholder="ابحث عن مادة لإضافتها..." oninput="searchItems()">
+            <ul class="suggestions" id="suggestionsBox"></ul>
+        </div>
+
+        <div class="items-list" id="sessionList">
+            <div style="text-align:center; color:#999; margin-top:30px; font-size: 14px;">لم يتم اختيار أي مواد. قم بالبحث لإضافة مادة.</div>
+        </div>
+
+        <div class="bottom-bar">
+            <button class="btn-save" onclick="saveSessionLocally()">💾 حفظ</button>
+            <button class="btn-send" onclick="openSendModal()">إرسال (<span id="itemsCount">0</span>) 🚀</button>
+        </div>
+    </div>
+
+    <div class="modal" id="sendModal">
+        <div class="modal-content">
+            <h3 style="margin-top:0;">إرسال الجلسة إلى:</h3>
+            <div id="usersList"></div>
+            <button onclick="closeModal('sendModal')" class="close-btn">إلغاء</button>
+        </div>
+    </div>
+
+    <div class="modal" id="chatModal">
+        <div class="modal-content" style="width: 95%; height: 85vh; padding:0; overflow:hidden; display: flex; flex-direction: column; background:#e5ddd5;">
+            <div style="display:flex; height: 100%;">
+                <div id="chatUsersList" style="width: 80px; background: white; border-left: 1px solid #ddd; overflow-y: auto; text-align:center;">
+                </div>
+                
+                <div style="flex:1; display:flex; flex-direction:column; position: relative;">
+                    <div style="padding: 12px; background: #f0f2f5; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center;">
+                        <span id="chatHeaderName" style="font-weight: bold; color: #2c3e50; font-size: 14px;">اختر مستخدماً</span>
+                        <button onclick="closeModal('chatModal')" style="background:none; border:none; font-size:16px; cursor:pointer;">❌</button>
+                    </div>
+                    
+                    <div id="messagesContainer" style="flex:1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column;">
+                        <div style="text-align:center; color:#888; margin-top:30px; font-size:14px;">💬 اختر زميلاً لبدء المراسلة</div>
+                    </div>
+                    
+                    <div id="chatInputArea" style="display:none; padding: 10px; background: #f0f2f5; gap: 8px; align-items: center;">
+                        <input type="text" id="chatTextInput" style="flex:1; padding: 10px; border-radius: 20px; border: 1px solid #ccc; font-size:14px; outline:none;" placeholder="رسالتك..." onkeyup="if(event.key==='Enter') sendTextMessage()">
+                        <button onclick="sendTextMessage()" style="background:#3498db; color:white; border:none; border-radius:50%; width:40px; height:40px; font-size:16px; cursor:pointer;">➤</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="savedSessionsModal">
+        <div class="modal-content">
+            <h3 style="margin-top:0; color: var(--primary);">📁 الجلسات المحفوظة</h3>
+            <div id="savedSessionsContainer"></div>
+            <button onclick="closeModal('savedSessionsModal')" class="close-btn">إغلاق</button>
+        </div>
+    </div>
+
+    <div class="modal" id="sentSessionsModal">
+        <div class="modal-content">
+            <h3 style="margin-top:0; color: var(--success);">📤 الجلسات المرسلة</h3>
+            <div id="sentSessionsContainer"></div>
+            <button onclick="closeModal('sentSessionsModal')" class="close-btn">إغلاق</button>
+        </div>
+    </div>
+
+    <div class="modal" id="backupModal">
+        <div class="modal-content">
+            <h3 style="margin-top:0; color: var(--primary);">☁️ اختيار نسخة قاعدة بيانات </h3>
+            <div id="backupListContainer"></div>
+            <button onclick="closeModal('backupModal')" class="close-btn">إغلاق</button>
+        </div>
+    </div>
+
+<script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCu3aH_vbzP3JIbYnQRxlPIyAvpfiOU3AQ",
+      authDomain: "msl2-841a3.firebaseapp.com",
+      databaseURL: "https://msl2-841a3-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "msl2-841a3",
+      storageBucket: "msl2-841a3.firebasestorage.app",
+      messagingSenderId: "738131472795",
+      appId: "1:738131472795:web:77193cde0333cea72f713e",
+      measurementId: "G-NS3KXW5VX7"
+    };
+
+    if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // القائمة المحدثة للمستخدمين والأقسام
+    const USERS = {
+        "وعد": "0000",
+        "حسين": "1111",
+        "احمد": "0000",
+        "محمد": "0000",
+        "حيدر": "0000",
+        "نور": "0000",
+        "الطوارئ": "0000",
+        "الاستشارية": "0000",
+        "صالة العمليات": "0000",
+        "مؤمل": "0000"
+    };
+    
+    let currentUser = "";
+    let inventoryDB = [];
+    let sessionItems = [];
+    let currentChatPartner = null;
+    let chatListenerRef = null;
+    let unreadMessagesTracker = new Map();
+
+    // --- نظام تسجيل الدخول ---
+    window.onload = () => {
+        const savedUser = localStorage.getItem('companion_user');
+        if (savedUser && USERS[savedUser]) {
+            currentUser = savedUser;
+            initMainScreen();
+        }
+    };
+
+    function login() {
+        const u = document.getElementById('username').value.trim();
+        const p = document.getElementById('password').value.trim();
+        if(USERS[u] && USERS[u] === p) {
+            currentUser = u;
+            localStorage.setItem('companion_user', currentUser);
+            initMainScreen();
+        } else {
+            document.getElementById('loginErr').style.display = 'block';
+        }
+    }
+
+    function logout() {
+        if(confirm("هل أنت متأكد من تسجيل الخروج؟")) {
+            localStorage.removeItem('companion_user');
+            location.reload();
+        }
+    }
+
+    // --- تفريغ الصفحة ---
+    function clearPage() {
+        if(sessionItems.length === 0) {
+            alert("الصفحة فارغة بالفعل!");
+            return;
+        }
+        if(confirm("هل أنت متأكد من مسح جميع المواد من القائمة الحالية؟")) {
+            sessionItems = [];
+            renderSessionList();
+            showToast("تم تفريغ الصفحة 🗑️");
+        }
+    }
+
+    function initMainScreen() {
+        document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('mainScreen').style.display = 'block';
+        document.getElementById('userNameDisplay').innerText = currentUser;
+        
+        initGlobalChatListener(); // تفعيل استماع المراسلة بصمت لعد الرسائل غير المقروءة
+        
+        // استعادة الجلسة المفتوحة (العمل غير المكتمل) عند عمل ريفرش للصفحة
+        const savedCurrentSession = localStorage.getItem('companion_current_session_' + currentUser);
+        if (savedCurrentSession) {
+            sessionItems = JSON.parse(savedCurrentSession);
+        }
+        
+        fetchCloudDB(true); // تمرير true للتحميل التلقائي لأول نسخة
+        
+        renderUsersList();
+        renderSessionList();
+    }
+
+    // --- النوافذ المنبثقة ---
+    function openModal(id) {
+        document.getElementById(id).style.display = 'flex';
+        if(id === 'savedSessionsModal') renderSavedSessions();
+        if(id === 'sentSessionsModal') renderSentSessions();
+    }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
+    // --- نظام المراسلة الجديد صامت ---
+    function initGlobalChatListener() {
+        unreadMessagesTracker.clear(); 
+        Object.keys(USERS).forEach(partner => {
+            if (partner === currentUser) return; 
+            
+            const roomId = getRoomId(currentUser, partner);
+            const chatRef = db.ref('chats/' + roomId);
+            
+            chatRef.limitToLast(20).on('child_added', (snapshot) => {
+                const msg = snapshot.val();
+                const msgId = snapshot.key;
+                if (msg && msg.sender !== currentUser && !msg.isRead) {
+                    unreadMessagesTracker.set(msgId, msg.sender);
+                    updateGlobalBadge();
+                }
+            });
+
+            chatRef.limitToLast(20).on('child_changed', (snapshot) => {
+                const msg = snapshot.val();
+                const msgId = snapshot.key;
+                if (msg && msg.isRead && unreadMessagesTracker.has(msgId)) {
+                    unreadMessagesTracker.delete(msgId);
+                    updateGlobalBadge();
+                }
+            });
+        });
+    }
+
+    function updateGlobalBadge() {
+        const badge = document.getElementById('globalUnreadBadge');
+        if(badge) {
+            badge.innerText = unreadMessagesTracker.size;
+            badge.style.display = unreadMessagesTracker.size > 0 ? 'inline-block' : 'none';
+        }
+    }
+
+    function renderChatUsersList() {
+        const listContainer = document.getElementById('chatUsersList');
+        listContainer.innerHTML = '';
+        
+        Object.keys(USERS).forEach(user => {
+            if (user === currentUser) return; 
+            const div = document.createElement('div');
+            div.style = "padding: 15px 5px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 13px; font-weight:bold; color: #2c3e50;";
+            div.innerText = user;
+            div.onclick = () => {
+                document.querySelectorAll('#chatUsersList div').forEach(el => el.style.background = 'transparent');
+                div.style.background = '#e8f0fe';
+                loadChatWith(user);
+            };
+            listContainer.appendChild(div);
+        });
+        
+        document.getElementById('globalUnreadBadge').style.display = 'none';
+    }
+
+    function loadChatWith(partnerName) {
+        currentChatPartner = partnerName;
+        document.getElementById('chatHeaderName').innerText = partnerName;
+        document.getElementById('chatInputArea').style.display = 'flex';
+        
+        const messagesContainer = document.getElementById('messagesContainer');
+        messagesContainer.innerHTML = ''; 
+        const roomId = getRoomId(currentUser, partnerName);
+
+        if (chatListenerRef) chatListenerRef.off();
+        const chatRef = db.ref('chats/' + roomId);
+        chatListenerRef = chatRef; 
+
+        chatRef.limitToLast(50).on('child_added', (snapshot) => {
+            const msg = snapshot.val();
+            msg.id = snapshot.key; 
+            
+            if (msg.sender !== currentUser && !msg.isRead) {
+                db.ref('chats/' + roomId + '/' + msg.id).update({ isRead: true });
+            }
+            renderMessage(msg);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight; 
+        });
+    }
+
+    function renderMessage(msg) {
+        const container = document.getElementById('messagesContainer');
+        const div = document.createElement('div');
+        const isMe = msg.sender === currentUser;
+        div.className = `message-bubble ${isMe ? 'msg-sent' : 'msg-received'}`;
+        
+        let content = escapeChatHtml(msg.content);
+        
+        if (msg.type === 'session') {
+            content = "📁 جلسة عمل (يجب فتحها من البرنامج الأساسي)";
+        } else if (msg.type === 'image') {
+            content = "🖼️ صورة مرفقة (افتح البرنامج الأساسي لمشاهدتها)";
+        } else if (msg.type === 'file' || msg.type === 'db_file') {
+            content = "📎 ملف مرفق (افتح البرنامج الأساسي للتحميل)";
+        } else if (msg.type === 'audio') {
+            content = "🎙️ رسالة صوتية (افتح البرنامج الأساسي للاستماع)";
+        }
+        
+        const time = new Date(msg.timestamp).toLocaleTimeString('ar-IQ', {hour:'2-digit', minute:'2-digit'});
+        const tickMark = isMe ? (msg.isRead ? '<span style="color:#3498db">✓✓</span>' : '✓') : '';
+        
+        div.innerHTML = `
+            <div style="color: #2c3e50;">${content}</div>
+            <div style="font-size:10px; color:#999; margin-top:5px; text-align:left; direction:ltr;">
+                ${time} ${tickMark}
+            </div>
+        `;
+        container.appendChild(div);
+    }
+
+    function escapeChatHtml(text) {
+        if (!text) return text;
+        return text.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    function sendTextMessage() {
+        const input = document.getElementById('chatTextInput');
+        const text = input.value.trim();
+        if (text && currentChatPartner) {
+            const roomId = getRoomId(currentUser, currentChatPartner);
+            db.ref('chats/' + roomId).push().set({
+                sender: currentUser,
+                type: 'text',
+                content: text,
+                timestamp: firebase.database.ServerValue.TIMESTAMP,
+                isRead: false
+            });
+            input.value = '';
+        }
+    }
+
+    // --- الجلسات المحفوظة (المسودات) ---
+    function saveSessionLocally() {
+        if(sessionItems.length === 0) { alert("القائمة فارغة، لا يوجد شيء لحفظه!"); return; }
+        
+        let saved = JSON.parse(localStorage.getItem('companion_saved_' + currentUser) || '[]');
+        const sessionName = prompt("أدخل اسماً لهذه الجلسة (مثال: طلبية المذخر):", "جلسة " + new Date().toLocaleDateString());
+        
+        if(sessionName) {
+            saved.push({
+                id: Date.now(),
+                name: sessionName,
+                date: new Date().toLocaleString(),
+                items: JSON.parse(JSON.stringify(sessionItems))
+            });
+            localStorage.setItem('companion_saved_' + currentUser, JSON.stringify(saved));
+            
+            showToast("تم حفظ الجلسة بنجاح 💾");
+            sessionItems = [];
+            renderSessionList();
+        }
+    }
+
+    function renderSavedSessions() {
+        const container = document.getElementById('savedSessionsContainer');
+        let saved = JSON.parse(localStorage.getItem('companion_saved_' + currentUser) || '[]');
+        
+        if(saved.length === 0) {
+            container.innerHTML = '<p style="color:#999;">لا توجد جلسات محفوظة.</p>';
+            return;
+        }
+
+        container.innerHTML = '';
+        saved.slice().reverse().forEach((sess, i) => {
+            const index = saved.length - 1 - i;
+            const div = document.createElement('div');
+            div.className = 'archive-card';
+            div.innerHTML = `
+                <div class="archive-title">${sess.name}</div>
+                <div class="archive-details">🕒 ${sess.date} | 📦 ${sess.items.length} مواد</div>
+                <div class="archive-actions">
+                    <button class="btn-load" onclick="loadSavedSession(${index})">استرجاع للتعديل</button>
+                    <button class="btn-delete" onclick="deleteSavedSession(${index})">حذف</button>
+                </div>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    function loadSavedSession(index) {
+        let saved = JSON.parse(localStorage.getItem('companion_saved_' + currentUser) || '[]');
+        if(sessionItems.length > 0) {
+            if(!confirm("القائمة الحالية غير فارغة. هل تريد مسحها وتحميل الجلسة المحفوظة؟")) return;
+        }
+        sessionItems = saved[index].items;
+        renderSessionList();
+        closeModal('savedSessionsModal');
+        showToast("تم تحميل الجلسة 📂");
+    }
+
+    function deleteSavedSession(index) {
+        if(confirm("هل أنت متأكد من حذف هذه الجلسة؟")) {
+            let saved = JSON.parse(localStorage.getItem('companion_saved_' + currentUser) || '[]');
+            saved.splice(index, 1);
+            localStorage.setItem('companion_saved_' + currentUser, JSON.stringify(saved));
+            renderSavedSessions();
+        }
+    }
+
+    // --- الجلسات المرسلة (الأرشيف والاسترجاع) ---
+    function logSentSession(targetUser, itemsToSave) {
+        let sent = JSON.parse(localStorage.getItem('companion_sent_' + currentUser) || '[]');
+        sent.push({
+            id: Date.now(),
+            to: targetUser,
+            date: new Date().toLocaleString(),
+            items: JSON.parse(JSON.stringify(itemsToSave))
+        });
+        localStorage.setItem('companion_sent_' + currentUser, JSON.stringify(sent));
+    }
+
+    function renderSentSessions() {
+        const container = document.getElementById('sentSessionsContainer');
+        let sent = JSON.parse(localStorage.getItem('companion_sent_' + currentUser) || '[]');
+        
+        if(sent.length === 0) {
+            container.innerHTML = '<p style="color:#999;">لم تقم بإرسال أي جلسة من الهاتف بعد.</p>';
+            return;
+        }
+
+        container.innerHTML = '';
+        sent.slice().reverse().forEach((sess, i) => {
+            const index = sent.length - 1 - i;
+            const div = document.createElement('div');
+            div.className = 'archive-card';
+            const count = sess.items ? sess.items.length : (sess.count || 0);
+            
+            div.innerHTML = `
+                <div class="archive-title">إلى د. ${sess.to} ✉️</div>
+                <div class="archive-details">🕒 ${sess.date}<br>📦 تحتوي على ${count} مواد</div>
+                <div class="archive-actions">
+                    <button class="btn-load" onclick="loadSentSession(${index})">استرجاع للتعديل</button>
+                    <button class="btn-delete" onclick="deleteSentSession(${index})">حذف</button>
+                </div>
+            `;
+            container.appendChild(div);
+        });
+    }
+
+    function loadSentSession(index) {
+        let sent = JSON.parse(localStorage.getItem('companion_sent_' + currentUser) || '[]');
+        
+        if (!sent[index].items) {
+            alert("هذه الجلسة قديمة ولا تحتوي على بيانات المواد القابلة للاسترجاع. يرجى استخدام الجلسات الجديدة.");
+            return;
+        }
+
+        if(sessionItems.length > 0) {
+            if(!confirm("القائمة الحالية غير فارغة. هل تريد مسحها وتحميل هذه الجلسة المرسلة؟")) return;
+        }
+        
+        sessionItems = JSON.parse(JSON.stringify(sent[index].items));
+        renderSessionList();
+        closeModal('sentSessionsModal');
+        showToast("تم استرجاع الجلسة المرسلة للتعديل 🔄");
+    }
+
+    function deleteSentSession(index) {
+        if(confirm("هل أنت متأكد من حذف هذا السجل من الأرشيف؟")) {
+            let sent = JSON.parse(localStorage.getItem('companion_sent_' + currentUser) || '[]');
+            sent.splice(index, 1);
+            localStorage.setItem('companion_sent_' + currentUser, JSON.stringify(sent));
+            renderSentSessions(); 
+        }
+    }
+
+    // --- الوظائف الأساسية (السحابة، البحث، الإرسال) ---
+
+    // دالة سحب وعرض النسخ الاحتياطية المتاحة 
+    function fetchCloudDB(isAutoLoad = false) {
+        if (!isAutoLoad) showToast("⏳ جاري البحث عن النسخ المتاحة...");
+
+        db.ref('backups_' + currentUser).once('value').then(snap => {
+            const backups = snap.val();
+
+            if (backups) {
+                if (isAutoLoad) {
+                    // --- التحميل التلقائي لأول نسخة متاحة وممتلئة ---
+                    let isLoaded = false;
+                    for (const slotKey of Object.keys(backups)) {
+                        const backupNode = backups[slotKey];
+                        if (backupNode && backupNode.data && backupNode.data.length > 0) {
+                            inventoryDB = backupNode.data;
+                            if(sessionItems.length === 0) {
+                                showToast(`تم تحميل قاعدة البيانات (${slotKey}) تلقائياً ✅`);
+                            }
+                            isLoaded = true;
+                            break; // التوقف فور إيجاد أول قاعدة بيانات صالحة
+                        }
+                    }
+                    if (!isLoaded) console.log("جميع النسخ الاحتياطية فارغة.");
+                } else {
+                    // --- الفتح اليدوي للنافذة لاختيار أو تغيير النسخة ---
+                    renderBackupsList(backups);
+                    openModal('backupModal');
+                }
+            } else {
+                if (!isAutoLoad) alert("لا توجد نسخ احتياطية محفوظة في السحابة لهذا المستخدم.");
+            }
+        }).catch(err => {
+            if (!isAutoLoad) alert("خطأ في الاتصال: " + err.message);
+            console.error(err);
+        });
+    }
+
+    // دالة رسم أزرار النسخ الاحتياطية داخل النافذة المنبثقة 
+    function renderBackupsList(backups) {
+        const container = document.getElementById('backupListContainer');
+        container.innerHTML = '';
+        
+        let hasValidBackups = false;
+
+        Object.keys(backups).forEach(slotKey => {
+            const backupNode = backups[slotKey];
+            
+            if (backupNode && backupNode.data && backupNode.data.length > 0) {
+                hasValidBackups = true;
+                
+                const dateStr = backupNode.date || "تاريخ غير متوفر";
+                const itemsCount = backupNode.data.length;
+                
+                const btn = document.createElement('button');
+                btn.className = 'user-btn'; 
+                btn.style.textAlign = 'right';
+                btn.innerHTML = `
+                    <div style="color: var(--primary); font-size: 16px;">📁 ${slotKey}</div>
+                    <div style="font-size: 13px; color: #666; font-weight: normal; margin-top: 5px;">
+                        📅 ${dateStr} <br> 📦 ${itemsCount} مادة
+                    </div>
+                `;
+                
+                btn.onclick = () => {
+                    inventoryDB = backupNode.data;
+                    closeModal('backupModal');
+                    showToast(`تم اعتماد النسخة (${slotKey}) بنجاح ✅`);
+                };
+                
+                container.appendChild(btn);
+            }
+        });
+        
+        if (!hasValidBackups) {
+            container.innerHTML = '<p style="color:#999; text-align:center;">جميع النسخ الموجودة فارغة.</p>';
+        }
+    }
+
+    function getCalculatedMonthlyNeed(item) {
+        let aNeed = parseFloat(item.annual_need) || 0;
+        let mNeed = parseFloat(item.monthly_need) || 0;
+        if (mNeed > 0 && aNeed === 0) return mNeed;
+        else if (aNeed > 0) return Math.round(aNeed / 12);
+        return 0;
+    }
+
+    function searchItems() {
+        const query = document.getElementById('searchInput').value.toLowerCase().trim();
+        const box = document.getElementById('suggestionsBox');
+        box.innerHTML = '';
+        if(query.length === 0) { box.style.display = 'none'; return; }
+
+        const matches = inventoryDB.filter(i => (i.name && i.name.toLowerCase().includes(query)) || (i.code && String(i.code).includes(query)));
+        
+        if(matches.length > 0) {
+            box.style.display = 'block';
+            matches.slice(0, 20).forEach(item => {
+                const li = document.createElement('li');
+                const mNeed = getCalculatedMonthlyNeed(item);
+                let htmlContent = `<span>${item.name}</span>`;
+                if(mNeed > 0) {
+                    li.className = 'has-need';
+                    htmlContent += `<span class="need-badge">احتياج: ${mNeed}</span>`;
+                }
+                li.innerHTML = htmlContent;
+                li.onclick = () => addItemToSession(item, mNeed);
+                box.appendChild(li);
+            });
+        } else { box.style.display = 'none'; }
+    }
+
+    function addItemToSession(item, mNeed) {
+        if(sessionItems.find(i => i.name === item.name)) { alert("المادة مضافة مسبقاً."); return; }
+
+        let initialQty = mNeed > 0 ? mNeed : "";
+        sessionItems.push({
+            name: item.name, code: item.code || "", unit: item.unit || "", qty_buy: initialQty,
+            stock: 0, monthly_consumption: 0, annual_need: item.annual_need || 0,
+            monthly_need: mNeed, cost: item.cost || 0, notes: "", isFromSession: true, isAutoFilled: (mNeed > 0)
+        });
+
+        document.getElementById('searchInput').value = '';
+        document.getElementById('suggestionsBox').style.display = 'none';
+        renderSessionList();
+    }
+
+    function updateQty(index, value) {
+        sessionItems[index].qty_buy = value;
+        sessionItems[index].isAutoFilled = false; 
+        renderSessionList();
+    }
+
+    function removeItem(index) { sessionItems.splice(index, 1); renderSessionList(); }
+
+    function renderSessionList() {
+        // حفظ تلقائي للقائمة الحالية لمنع فقدانها عند عمل ريفرش
+        if(currentUser) {
+            localStorage.setItem('companion_current_session_' + currentUser, JSON.stringify(sessionItems));
+        }
+
+        const list = document.getElementById('sessionList');
+        document.getElementById('itemsCount').innerText = sessionItems.length;
+        
+        if(sessionItems.length === 0) {
+            list.innerHTML = '<div style="text-align:center; color:#999; margin-top:30px; font-size: 14px;">لم يتم اختيار أي مواد.</div>';
+            return;
+        }
+
+        list.innerHTML = '';
+        sessionItems.forEach((item, index) => {
+            const div = document.createElement('div');
+            const mNeed = parseFloat(item.monthly_need) || 0;
+            div.className = mNeed > 0 ? 'item-card has-need-card' : 'item-card';
+            const inputClass = item.isAutoFilled ? 'auto-filled' : '';
+
+            div.innerHTML = `
+                <div class="item-title">
+                    <span>${item.name}</span>
+                    ${mNeed > 0 ? `<span class="need-badge">الاحتياج: ${mNeed}</span>` : ''}
+                </div>
+                <div class="item-controls">
+                    <input type="number" class="${inputClass}" placeholder="الكمية المطلوبة..." value="${item.qty_buy}" onchange="updateQty(${index}, this.value)">
+                    <button class="btn-remove" onclick="removeItem(${index})">X</button>
+                </div>
+            `;
+            list.appendChild(div);
+        });
+
+        setTimeout(() => { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }, 50);
+    }
+
+    function renderUsersList() {
+        const container = document.getElementById('usersList');
+        container.innerHTML = '';
+        Object.keys(USERS).forEach(user => {
+            if(user === currentUser) return;
+            const btn = document.createElement('button');
+            btn.className = 'user-btn';
+            btn.innerText = user;
+            btn.onclick = () => sendSessionTo(user);
+            container.appendChild(btn);
+        });
+    }
+
+    function openSendModal() {
+        if(sessionItems.length === 0) { alert("أضف مواد أولاً!"); return; }
+        openModal('sendModal');
+    }
+
+   function getRoomId(u1, u2) {
+        // تطابق تام مع دالة ترتيب الغرف في النظام الرئيسي
+        const users = [u1, u2].sort();
+        return `${users[0]}_${users[1]}`;
+    }
+
+    function sendSessionTo(targetUser) {
+        closeModal('sendModal');
+        const roomId = getRoomId(currentUser, targetUser);
+        const newMsgRef = db.ref('chats/' + roomId).push();
+        
+        const itemsCopy = JSON.parse(JSON.stringify(sessionItems));
+        
+        // --- التحديث الجديد: الهيكلية المطابقة تماماً لبرنامج 138 ---
+        const msgData = {
+            sender: currentUser, 
+            type: 'session', 
+            content: '',
+            timestamp: firebase.database.ServerValue.TIMESTAMP,
+            isRead: false, 
+            // تم تغليف البيانات في كائن ليتعرف عليها النظام الجديد بنجاح ويُطلق الإشعارات
+            sessionData: {
+                sessionType: 'main',
+                sessionData: itemsCopy,
+                itemsCount: itemsCopy.length
+            }
+        };
+
+        newMsgRef.set(msgData).then(() => {
+            alert(`تم إرسال الجلسة إلى د. ${targetUser} بنجاح! ✅`);
+            logSentSession(targetUser, itemsCopy);
+            sessionItems = [];
+            renderSessionList();
+        }).catch(e => { 
+            alert("حدث خطأ أثناء الإرسال: " + e.message); 
+        });
+    }
+
+    function showToast(msgText) {
+        // لتجنب تكرار التوست في نفس اللحظة
+        const oldToast = document.getElementById('appToast');
+        if(oldToast) oldToast.remove();
+
+        const msg = document.createElement('div');
+        msg.id = 'appToast';
+        msg.innerText = msgText;
+        msg.style = "position:fixed; top:70px; left:50%; transform:translateX(-50%); background:var(--dark); color:white; padding:8px 20px; border-radius:20px; font-size:13px; z-index:9999; box-shadow:0 4px 10px rgba(0,0,0,0.2);";
+        document.body.appendChild(msg);
+        setTimeout(() => msg.remove(), 2500);
+    }
+</script>
+</body>
+</html>
