@@ -1118,18 +1118,44 @@
     }
 
     function renderBackupsList(backups) {
-        const container = document.getElementById('backupListContainer'); container.innerHTML = '';
+        const container = document.getElementById('backupListContainer'); 
+        container.innerHTML = '';
         let hasValidBackups = false;
+        
         Object.keys(backups).forEach(slotKey => {
             if (backups[slotKey] && backups[slotKey].data && backups[slotKey].data.length > 0) {
                 hasValidBackups = true;
-                const btn = document.createElement('button'); btn.className = 'user-btn'; btn.style.textAlign = 'right';
-                btn.innerHTML = `<div style="color: var(--primary); font-size: 16px;">📁 ${slotKey}</div><div style="font-size: 13px; color: #666; margin-top: 5px;">📅 ${backups[slotKey].date || "غير متوفر"} <br> 📦 ${backups[slotKey].data.length} مادة</div>`;
-                btn.onclick = () => { inventoryDB = backups[slotKey].data; closeModal('backupModal'); showToast(`تم اعتماد (${slotKey}) ✅`); };
+                
+                // --- الإضافة الجديدة: جلب الاسم المخصص من السحابة ---
+                // إذا كان هناك اسم مخصص (slotName) استخدمه، وإلا استخدم رقم النسخة (slotKey)
+                const displayName = backups[slotKey].slotName || slotKey.replace('slot_', 'نسخة سحابية ');
+                
+                const btn = document.createElement('button'); 
+                btn.className = 'user-btn'; 
+                btn.style.textAlign = 'right';
+                
+                // عرض الاسم (displayName) بدلاً من الاسم القديم
+                btn.innerHTML = `
+                    <div style="color: var(--primary); font-size: 16px; font-weight: bold;">📁 ${displayName}</div>
+                    <div style="font-size: 13px; color: #666; margin-top: 5px;">
+                        📅 ${backups[slotKey].date || "غير متوفر"} <br> 
+                        📦 ${backups[slotKey].data.length} مادة
+                    </div>
+                `;
+                
+                btn.onclick = () => { 
+                    inventoryDB = backups[slotKey].data; 
+                    closeModal('backupModal'); 
+                    showToast(`تم اعتماد (${displayName}) ✅`); 
+                };
+                
                 container.appendChild(btn);
             }
         });
-        if (!hasValidBackups) container.innerHTML = '<p style="color:#999; text-align:center;">النسخ الموجودة فارغة.</p>';
+        
+        if (!hasValidBackups) {
+            container.innerHTML = '<p style="color:#999; text-align:center;">النسخ الموجودة فارغة.</p>';
+        }
     }
 
     function getCalculatedMonthlyNeed(item) {
