@@ -211,7 +211,11 @@
         </div>
 
         <div class="search-container">
-            <input type="text" class="search-input" id="searchInput" placeholder="ابحث عن مادة لإضافتها..." oninput="searchItems()">
+            <div style="position: relative;">
+                <input type="text" class="search-input" id="searchInput" placeholder="ابحث عن مادة لإضافتها..." oninput="searchItems()" onfocus="searchItems()" style="padding-left: 40px;">
+                
+                <button id="clearSearchBtn" onclick="clearSearchField()" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); background: none; border: none; font-size: 20px; color: #e74c3c; cursor: pointer; display: none; padding: 0;">✖</button>
+            </div>
             <ul class="suggestions" id="suggestionsBox"></ul>
         </div>
 
@@ -986,12 +990,24 @@
     // --- الدالة المحدثة للبحث وعرض زر الإضافة ---
     function searchItems() {
         const query = document.getElementById('searchInput').value.toLowerCase().trim();
-        const box = document.getElementById('suggestionsBox'); box.innerHTML = '';
+        const box = document.getElementById('suggestionsBox'); 
+        const clearBtn = document.getElementById('clearSearchBtn'); // استدعاء زر المسح
         
-        if(query.length === 0) { box.style.display = 'none'; return; }
+        box.innerHTML = '';
+        
+        // إذا كان الحقل فارغاً، نخفي القائمة وزر المسح
+        if(query.length === 0) { 
+            box.style.display = 'none'; 
+            clearBtn.style.display = 'none'; 
+            return; 
+        } else {
+            // إظهار زر المسح بمجرد وجود نص
+            clearBtn.style.display = 'block';
+        }
         
         const matches = inventoryDB.filter(i => (i.name && i.name.toLowerCase().includes(query)) || (i.code && String(i.code).includes(query)));
         
+        // ... (باقي كود الدالة كما هو تماماً دون تغيير) ...
         if(matches.length > 0) {
             box.style.display = 'block';
             matches.slice(0, 20).forEach(item => {
@@ -1168,6 +1184,26 @@
         document.body.appendChild(msg); 
         setTimeout(() => { if(document.getElementById('msgAlertToast')) msg.remove(); }, 4000);
     }
+
+    // دالة مسح الحقل وإغلاق القائمة عند النقر على (✖)
+    function clearSearchField() {
+        document.getElementById('searchInput').value = '';
+        document.getElementById('suggestionsBox').style.display = 'none';
+        document.getElementById('clearSearchBtn').style.display = 'none';
+        document.getElementById('searchInput').focus(); // إبقاء المؤشر داخل المربع بعد المسح
+    }
+
+    // ميزة إغلاق القائمة عند النقر في أي مكان خارج مربع البحث
+    document.addEventListener('click', function(event) {
+        const searchContainer = document.querySelector('.search-container');
+        const box = document.getElementById('suggestionsBox');
+        
+        // إذا نقر المستخدم خارج حاوية البحث، نخفي القائمة
+        if (searchContainer && !searchContainer.contains(event.target)) {
+            box.style.display = 'none';
+        }
+    });
+
 </script>
 </body>
 </html>
