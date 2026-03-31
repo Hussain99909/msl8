@@ -3,12 +3,170 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>صانع الجلسات الطبي</title>
+    <title>صانع الجلسات الطبي - MSL</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 
     <style>
+        /* --- تنسيقات الواجهة الترحيبية (MSL Intro) --- */
+        @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap');
+
+        #introScreen {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #111;
+            z-index: 9999;
+            overflow: hidden;
+            perspective: 1000px;
+            font-family: 'Tajawal', sans-serif;
+            -webkit-tap-highlight-color: transparent; 
+            user-select: none;
+        }
+
+        #introScreen .card {
+            position: relative;
+            width: 320px;
+            height: 460px;
+            background: #1e1e1e;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+            cursor: pointer;
+            transition: box-shadow 0.4s ease;
+        }
+
+        #introScreen .circle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 200px;
+            height: 200px;
+            background: #007bff;
+            border-radius: 50%;
+            filter: blur(35px);
+            transform: translate(-50%, -50%) scale(1);
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1), filter 0.6s ease;
+            z-index: 1;
+        }
+
+        #introScreen .card:hover .circle, 
+        #introScreen .card.active .circle {
+            transform: translate(-50%, -50%) scale(3.5);
+            filter: blur(0px);
+        }
+
+        #introScreen .logo {
+            position: absolute;
+            top: 25px;
+            right: 25px;
+            width: 70px;
+            z-index: 10;
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.5s ease;
+        }
+
+        #introScreen .card:hover .logo, 
+        #introScreen .card.active .logo {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        #introScreen .product-wrapper {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(1);
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+            z-index: 5;
+            width: 140px;
+        }
+
+        #introScreen .product-floater {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        #introScreen .card:hover .product-wrapper, 
+        #introScreen .card.active .product-wrapper {
+            transform: translate(-50%, -85%) scale(0.8);
+        }
+
+        #introScreen .card:hover .product-floater, 
+        #introScreen .card.active .product-floater {
+            animation-play-state: paused;
+        }
+
+        #introScreen .product_img {
+            width: 100%;
+            height: auto;
+            filter: drop-shadow(0 15px 15px rgba(0,0,0,0.5));
+        }
+
+        #introScreen .content {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            padding: 30px 20px;
+            text-align: center;
+            z-index: 10;
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.5s cubic-bezier(0.25, 1, 0.5, 1);
+            background: linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0) 100%);
+        }
+
+        #introScreen .card:hover .content, 
+        #introScreen .card.active .content {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        #introScreen .content h2 {
+            color: #fff;
+            font-size: 2.2em;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+
+        #introScreen .content p {
+            color: #eee;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        #introScreen .start-btn {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #fff;
+            color: #007bff;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 15px;
+            transition: 0.3s;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            border: none;
+            cursor: pointer;
+            font-family: 'Tajawal', sans-serif;
+        }
+
+        #introScreen .start-btn:hover {
+            background: #111;
+            color: #fff;
+        }
+
+        /* --- تنسيقات التطبيق الأساسي --- */
         :root {
             --primary: #3498db;
             --success: #27ae60;
@@ -34,7 +192,8 @@
         #loginScreen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(135deg, #2c3e50, #3498db);
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            display: none; /* مخفي بشكل افتراضي حتى تنتهي واجهة البداية */
+            flex-direction: column; justify-content: center; align-items: center;
             z-index: 1000; padding: 20px;
         }
         .login-box {
@@ -57,32 +216,26 @@
             position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         
-        /* --- التنسيق الجديد لشبكة أزرار القائمة العلوية --- */
-        /* --- التنسيق الجديد لشبكة أزرار القائمة العلوية --- */
         .grid-btn {
             background: rgba(255, 255, 255, 0.1);
             color: white;
             border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px; /* تقليل الاستدارة لتناسب الحجم الصغير */
+            border-radius: 8px;
             padding: 4px;
-            font-size: 10px; /* تصغير حجم خط الكلمة لتناسب الأيقونة */
+            font-size: 10px;
             font-weight: bold;
             cursor: pointer;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 2px; /* تقليل المسافة جداً بين الأيقونة والكلمة */
-            height: 45px; /* ارتفاع أصغر بكثير ليطابق الأزرار القديمة */
+            gap: 2px;
+            height: 45px;
             transition: 0.2s;
             font-family: inherit;
         }
-        .grid-btn:active {
-            background: rgba(255, 255, 255, 0.3);
-        }
-        .grid-btn span.icon-lg {
-            font-size: 13px; /* هذا هو نفس حجم الأيقونات القديمة تماماً */
-        }
+        .grid-btn:active { background: rgba(255, 255, 255, 0.3); }
+        .grid-btn span.icon-lg { font-size: 13px; }
 
         .search-container { padding: 15px; position: relative; }
         .search-input {
@@ -102,17 +255,9 @@
         .suggestions li.has-need { background-color: #e3f2fd !important; color: #0d47a1 !important; border-right: 4px solid #1976d2; }
         .need-badge { background: #1976d2 !important; color: white !important; padding: 4px 10px; border-radius: 12px; font-size: 13px; font-weight: bold; white-space: nowrap !important; flex-shrink: 0; }
         
-        .add-badge {
-            background: #1976d2; color: white; padding: 4px 10px; border-radius: 12px; 
-            font-size: 13px; font-weight: bold; white-space: nowrap; border: none;
-            cursor: pointer; font-family: inherit; transition: background 0.3s;
-        }
+        .add-badge { background: #1976d2; color: white; padding: 4px 10px; border-radius: 12px; font-size: 13px; font-weight: bold; white-space: nowrap; border: none; cursor: pointer; font-family: inherit; transition: background 0.3s; }
         .add-badge.added { background: #27ae60 !important; cursor: default; }
-        .remove-badge {
-            background: #e74c3c; color: white; padding: 4px 10px; border-radius: 12px; 
-            font-size: 13px; font-weight: bold; white-space: nowrap; border: none;
-            cursor: pointer; font-family: inherit; transition: background 0.3s;
-        }
+        .remove-badge { background: #e74c3c; color: white; padding: 4px 10px; border-radius: 12px; font-size: 13px; font-weight: bold; white-space: nowrap; border: none; cursor: pointer; font-family: inherit; transition: background 0.3s; }
         .remove-badge:active { background: #c0392b; }
 
         .items-list { padding: 10px 15px; }
@@ -184,6 +329,38 @@
     </style>
 </head>
 <body>
+
+    <div id="introScreen">
+        <div class="card" id="mslCard">
+            <div class="circle"></div>
+            
+            <svg class="logo" viewBox="0 0 100 40" xmlns="http://www.w3.org/2000/svg">
+                <text x="50" y="30" fill="#fff" font-size="28" font-family="sans-serif" font-weight="bold" text-anchor="middle">MSL</text>
+            </svg>
+
+            <div class="product-wrapper">
+                <div class="product-floater">
+                    <svg class="product_img" viewBox="0 0 200 400" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="10" y="10" width="180" height="380" rx="25" fill="#1a1a1a" stroke="#333" stroke-width="3"/>
+                        <rect x="15" y="15" width="170" height="370" rx="20" fill="#0d0d0d"/>
+                        <rect x="80" y="25" width="40" height="8" rx="4" fill="#222"/>
+                        <rect x="30" y="70" width="140" height="60" rx="10" fill="rgba(255,255,255,0.1)"/>
+                        <rect x="30" y="140" width="140" height="30" rx="8" fill="rgba(255,255,255,0.05)"/>
+                        <rect x="30" y="180" width="140" height="30" rx="8" fill="rgba(255,255,255,0.05)"/>
+                        <text x="100" y="260" fill="#007bff" font-size="45" font-family="sans-serif" text-anchor="middle" font-weight="bold">MSL</text>
+                        <circle cx="100" cy="330" r="20" fill="#007bff"/>
+                        <path d="M95 325 L105 330 L95 335 Z" fill="#fff"/>
+                    </svg>
+                </div>
+            </div>
+            
+            <div class="content">
+                <h2>MSL</h2>
+                <p>إدارة مهامك أصبحت أسهل وأسرع. واجهة ذكية، أداء فائق، وتجربة مستخدم لا مثيل لها.</p>
+                <button class="start-btn" onclick="startApp()">ابدأ الآن مجاناً</button>
+            </div>
+        </div>
+    </div>
 
     <div id="loginScreen">
         <div class="login-box">
@@ -365,7 +542,7 @@
             <h3 style="margin-top:0; color: var(--primary);">☁️ اختيار نسخة قاعدة بيانات</h3>
             <p style="font-size: 13px; color: #e74c3c; margin-bottom: 15px;">يجب اختيار قاعدة بيانات للبدء بالعمل</p>
             <div id="backupListContainer"></div>
-            </div>
+        </div>
     </div>
 
 <script>
@@ -405,13 +582,30 @@
     let isRecording = false;
     let currentSystemFilter = 'need';
 
-    window.onload = () => {
+    // -- أحداث الواجهة الترحيبية --
+    const card = document.getElementById('mslCard');
+    card.addEventListener('click', function(e) {
+        if(!e.target.classList.contains('start-btn')){
+            this.classList.toggle('active');
+        }
+    });
+
+    // -- دالة بدء التطبيق بعد واجهة MSL --
+    function startApp() {
+        document.getElementById('introScreen').style.display = 'none';
+        
         const savedUser = localStorage.getItem('companion_user');
         if (savedUser && USERS[savedUser]) {
             currentUser = savedUser;
             initMainScreen();
+        } else {
+            // إظهار شاشة تسجيل الدخول إذا لم يكن مسجلاً
+            document.getElementById('loginScreen').style.display = 'flex';
         }
-    };
+    }
+
+    // يتم ترك window.onload فارغاً لتجنب التخطي التلقائي للواجهة الترحيبية
+    window.onload = () => {};
 
     function login() {
         const u = document.getElementById('username').value.trim();
@@ -456,7 +650,6 @@
         const savedCurrentSession = localStorage.getItem('companion_current_session_' + currentUser);
         if (savedCurrentSession) sessionItems = JSON.parse(savedCurrentSession);
         
-        // تم التعديل هنا لفتح النافذة بدلاً من التحميل التلقائي المخفي
         fetchCloudDB(); 
         
         renderUsersList();
@@ -922,7 +1115,6 @@
     }
     function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-    // --- نافذة مواد النظام ---
     function openSystemItemsModal() {
         if (inventoryDB.length === 0) {
             alert("يرجى التأكد من تحميل قاعدة البيانات أولاً.");
