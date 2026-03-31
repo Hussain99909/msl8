@@ -82,28 +82,13 @@
             display: flex; flex-direction: column; align-items: flex-start; cursor: pointer; gap: 8px;
         }
         .suggestions li.has-need { background-color: #e3f2fd !important; color: #0d47a1 !important; border-right: 4px solid #1976d2; }
+        .need-badge { background: #1976d2 !important; color: white !important; padding: 4px 10px; border-radius: 12px; font-size: 13px; font-weight: bold; white-space: nowrap !important; flex-shrink: 0; }
         
-        /* توحيد الأيقونات في الارتفاع والمحاذاة */
-        .need-badge { 
-            background: #1976d2 !important; 
-            color: white !important; 
-            padding: 0 12px; 
-            border-radius: 12px; 
-            font-size: 13px; 
-            font-weight: bold; 
-            white-space: nowrap !important; 
-            flex-shrink: 0; 
-            display: inline-flex;
-            align-items: center; 
-            justify-content: center; 
-            height: 28px;
-            box-sizing: border-box; 
-        }
-        
+        /* أزرار الإضافة والإزالة */
         .add-badge {
             background: #1976d2;
             color: white; 
-            padding: 0 12px; 
+            padding: 4px 10px; 
             border-radius: 12px; 
             font-size: 13px; 
             font-weight: bold; 
@@ -112,21 +97,15 @@
             cursor: pointer;
             font-family: inherit;
             transition: background 0.3s;
-            display: inline-flex;
-            align-items: center; 
-            justify-content: center; 
-            height: 28px;
-            box-sizing: border-box; 
         }
         .add-badge.added {
             background: #27ae60 !important;
             cursor: default;
         }
-        
         .remove-badge {
             background: #e74c3c;
             color: white; 
-            padding: 0 12px; 
+            padding: 4px 10px; 
             border-radius: 12px; 
             font-size: 13px; 
             font-weight: bold; 
@@ -135,11 +114,6 @@
             cursor: pointer;
             font-family: inherit;
             transition: background 0.3s;
-            display: inline-flex;
-            align-items: center; 
-            justify-content: center; 
-            height: 28px;
-            box-sizing: border-box; 
         }
         .remove-badge:active { background: #c0392b; }
 
@@ -147,7 +121,7 @@
         .item-card { background: white; border-radius: 10px; padding: 15px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-right: 4px solid var(--primary); display: flex; flex-direction: column; gap: 10px; }
         .item-card.has-need-card { border-right-color: #1976d2 !important; background-color: #f0f8ff !important; }
         .item-title { font-weight: bold; color: var(--dark); font-size: 15px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-        .item-title span:first-child, .suggestions li span:first-child { flex: 1; word-break: break-word; text-align: right; width: 100%; display: block; }
+        .item-title span:first-child, .suggestions li span:first-child { flex: 1; word-break: break-word; text-align: right; width: 100%; }
         .item-controls { display: flex; gap: 10px; align-items: center; }
         .item-controls input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 8px; text-align: center; font-size: 16px; font-weight: bold; }
         .item-controls input.auto-filled { border: 2px solid #27ae60; background-color: #eafaf1; color: #27ae60;}
@@ -939,6 +913,7 @@
     function renderSystemItems(filterType) {
         currentSystemFilter = filterType;
         
+        // تحديث شكل الأزرار
         const btnNeed = document.getElementById('filterNeedBtn');
         const btnAll = document.getElementById('filterAllBtn');
         
@@ -956,6 +931,7 @@
         const searchQuery = document.getElementById('systemItemsSearch').value.toLowerCase().trim();
         let itemsToShow = inventoryDB;
         
+        // التصفية بحسب البحث الداخلي إن وجد
         if (searchQuery) {
             itemsToShow = itemsToShow.filter(i => (i.name && i.name.toLowerCase().includes(searchQuery)) || (i.code && String(i.code).includes(searchQuery)));
         }
@@ -963,7 +939,7 @@
         itemsToShow.forEach(item => {
             const mNeed = getCalculatedMonthlyNeed(item);
             
-            if (filterType === 'need' && mNeed <= 0) return; 
+            if (filterType === 'need' && mNeed <= 0) return; // تخطي المواد بدون احتياج
             
             const li = document.createElement('li');
             li.style.cssText = "padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 14px; font-weight: bold; display: flex; flex-direction: column; align-items: flex-start; gap: 8px;";
@@ -977,17 +953,16 @@
             const titleSpan = document.createElement('span');
             titleSpan.innerText = item.name;
             titleSpan.style.width = "100%";
-            titleSpan.style.display = "block";
             titleSpan.style.wordBreak = "break-word";
+            titleSpan.style.textAlign = "right";
             
             const badgesDiv = document.createElement('div');
-            badgesDiv.style.cssText = "display: flex; gap: 5px; align-items: center; flex-wrap: wrap; width: 100%; margin-top: 5px;";
+            badgesDiv.style.cssText = "display: flex; gap: 8px; align-items: center; width: 100%; flex-wrap: wrap;";
             
             if(mNeed > 0) { 
                 const needSpan = document.createElement('span');
                 needSpan.className = 'need-badge';
-                // استبدال النص برمز لتقليل العرض
-                needSpan.innerText = `🎯 ${mNeed}`;
+                needSpan.innerText = `احتياج: ${mNeed}`;
                 badgesDiv.appendChild(needSpan);
             }
 
@@ -1205,17 +1180,16 @@
                 const titleSpan = document.createElement('span');
                 titleSpan.innerText = item.name;
                 titleSpan.style.width = "100%";
-                titleSpan.style.display = "block";
                 titleSpan.style.wordBreak = "break-word";
+                titleSpan.style.textAlign = "right";
                 
                 const badgesDiv = document.createElement('div');
-                badgesDiv.style.cssText = "display: flex; gap: 5px; align-items: center; flex-wrap: wrap; width: 100%; margin-top: 5px;";
+                badgesDiv.style.cssText = "display: flex; gap: 8px; align-items: center; width: 100%; flex-wrap: wrap;";
                 
                 if(mNeed > 0) { 
                     const needSpan = document.createElement('span');
                     needSpan.className = 'need-badge';
-                    // استبدال النص برمز لتقليل العرض
-                    needSpan.innerText = `🎯 ${mNeed}`;
+                    needSpan.innerText = `احتياج: ${mNeed}`;
                     badgesDiv.appendChild(needSpan);
                 }
                 
@@ -1314,8 +1288,7 @@
         sessionItems.forEach((item, index) => {
             const div = document.createElement('div'); const mNeed = parseFloat(item.monthly_need) || 0;
             div.className = mNeed > 0 ? 'item-card has-need-card' : 'item-card';
-            // استبدال كلمة الاحتياج هنا أيضاً
-            div.innerHTML = `<div class="item-title"><span>${item.name}</span>${mNeed > 0 ? `<span class="need-badge">🎯 ${mNeed}</span>` : ''}</div>
+            div.innerHTML = `<div class="item-title"><span>${item.name}</span>${mNeed > 0 ? `<span class="need-badge">الاحتياج: ${mNeed}</span>` : ''}</div>
                 <div class="item-controls"><input type="number" class="${item.isAutoFilled ? 'auto-filled' : ''}" placeholder="الكمية المطلوبة..." value="${item.qty_buy}" onchange="updateQty(${index}, this.value)">
                 <button class="btn-remove" onclick="removeItem(${index})">X</button></div>`;
             list.appendChild(div);
