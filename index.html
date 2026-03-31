@@ -53,18 +53,36 @@
 
         #mainScreen { display: none; padding-bottom: 80px; }
         .header {
-            background: var(--dark); color: white; padding: 10px 15px;
+            background: var(--dark); color: white; padding: 15px;
             position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
-        .header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;}
-        .header-bottom { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 5px; scrollbar-width: none;}
-        .header-bottom::-webkit-scrollbar { display: none; }
         
-        .nav-btn {
-            background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2);
-            padding: 6px 12px; border-radius: 20px; font-size: 13px; white-space: nowrap; cursor: pointer;
+        /* --- التنسيق الجديد لشبكة أزرار القائمة العلوية --- */
+        /* --- التنسيق الجديد لشبكة أزرار القائمة العلوية --- */
+        .grid-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 8px; /* تقليل الاستدارة لتناسب الحجم الصغير */
+            padding: 4px;
+            font-size: 10px; /* تصغير حجم خط الكلمة لتناسب الأيقونة */
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 2px; /* تقليل المسافة جداً بين الأيقونة والكلمة */
+            height: 45px; /* ارتفاع أصغر بكثير ليطابق الأزرار القديمة */
+            transition: 0.2s;
+            font-family: inherit;
         }
-        .nav-btn:active { background: rgba(255,255,255,0.3); }
+        .grid-btn:active {
+            background: rgba(255, 255, 255, 0.3);
+        }
+        .grid-btn span.icon-lg {
+            font-size: 13px; /* هذا هو نفس حجم الأيقونات القديمة تماماً */
+        }
 
         .search-container { padding: 15px; position: relative; }
         .search-input {
@@ -84,36 +102,16 @@
         .suggestions li.has-need { background-color: #e3f2fd !important; color: #0d47a1 !important; border-right: 4px solid #1976d2; }
         .need-badge { background: #1976d2 !important; color: white !important; padding: 4px 10px; border-radius: 12px; font-size: 13px; font-weight: bold; white-space: nowrap !important; flex-shrink: 0; }
         
-        /* أزرار الإضافة والإزالة */
         .add-badge {
-            background: #1976d2;
-            color: white; 
-            padding: 4px 10px; 
-            border-radius: 12px; 
-            font-size: 13px; 
-            font-weight: bold; 
-            white-space: nowrap; 
-            border: none;
-            cursor: pointer;
-            font-family: inherit;
-            transition: background 0.3s;
+            background: #1976d2; color: white; padding: 4px 10px; border-radius: 12px; 
+            font-size: 13px; font-weight: bold; white-space: nowrap; border: none;
+            cursor: pointer; font-family: inherit; transition: background 0.3s;
         }
-        .add-badge.added {
-            background: #27ae60 !important;
-            cursor: default;
-        }
+        .add-badge.added { background: #27ae60 !important; cursor: default; }
         .remove-badge {
-            background: #e74c3c;
-            color: white; 
-            padding: 4px 10px; 
-            border-radius: 12px; 
-            font-size: 13px; 
-            font-weight: bold; 
-            white-space: nowrap; 
-            border: none;
-            cursor: pointer;
-            font-family: inherit;
-            transition: background 0.3s;
+            background: #e74c3c; color: white; padding: 4px 10px; border-radius: 12px; 
+            font-size: 13px; font-weight: bold; white-space: nowrap; border: none;
+            cursor: pointer; font-family: inherit; transition: background 0.3s;
         }
         .remove-badge:active { background: #c0392b; }
 
@@ -200,24 +198,47 @@
 
     <div id="mainScreen">
         <div class="header">
-            <div class="header-top">
-                <div style="font-weight: bold; font-size: 18px; display: flex; align-items: center; gap: 10px;">
-                    <span>مرحباً د. <span id="userNameDisplay"></span></span>
-                    
-                    <button onclick="openModal('chatModal'); renderChatUsersList();" class="nav-btn" style="position: relative; background: #27ae60; border-color: #27ae60; padding: 4px 10px; font-size: 11px;">
-                        💬 مراسلة
-                        <span id="globalUnreadBadge" style="display:none; position:absolute; top:-6px; right:-6px; background:#e74c3c; color:white; border-radius:50%; font-size:11px; padding:2px 6px; font-weight:bold; box-shadow:0 1px 3px rgba(0,0,0,0.3);">0</span>
-                    </button>
-
-                    <button onclick="logout()" class="nav-btn" style="color: #ffcccc; border-color: #ffcccc; padding: 4px 10px; font-size: 11px;">🚪 خروج</button>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div style="font-weight: bold; font-size: 18px; color: white;">
+                    مرحباً د. <span id="userNameDisplay"></span>
                 </div>
-                <button onclick="fetchCloudDB()" style="background:none; border:none; color:white; font-size:20px; cursor:pointer;">🔄</button>
+                <button onclick="logout()" style="background: rgba(255, 76, 76, 0.2); color: #ffcccc; border: 1px solid #ffcccc; padding: 6px 12px; border-radius: 15px; font-size: 12px; cursor: pointer; font-weight: bold;">
+                    🚪 خروج
+                </button>
             </div>
-            <div class="header-bottom">
-                <button onclick="openModal('savedSessionsModal')" class="nav-btn">📁 المحفوظة</button>
-                <button onclick="openModal('sentSessionsModal')" class="nav-btn">📤 المرسلة</button>
-                <button onclick="openSystemItemsModal()" class="nav-btn">📦 مواد النظام</button>
-                <button onclick="clearPage()" class="nav-btn" style="color: #f39c12; border-color: #f39c12;">🗑️ تفريغ الصفحة</button>
+
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 15px;">
+                
+                <button onclick="openModal('chatModal'); renderChatUsersList();" class="grid-btn" style="position: relative; background: #27ae60; border-color: #27ae60;">
+                    <span class="icon-lg">💬</span>
+                    <span>مراسلة</span>
+                    <span id="globalUnreadBadge" style="display:none; position:absolute; top:-5px; right:-5px; background:#e74c3c; color:white; border-radius:50%; font-size:11px; padding:2px 6px; font-weight:bold; box-shadow:0 1px 3px rgba(0,0,0,0.3);">0</span>
+                </button>
+
+                <button onclick="fetchCloudDB()" class="grid-btn" style="background: var(--primary); border-color: #2980b9;">
+                    <span class="icon-lg">🔄</span>
+                    <span>بيانات</span>
+                </button>
+
+                <button onclick="openSystemItemsModal()" class="grid-btn">
+                    <span class="icon-lg">📦</span>
+                    <span>مواد النظام</span>
+                </button>
+
+                <button onclick="openModal('savedSessionsModal')" class="grid-btn">
+                    <span class="icon-lg">📁</span>
+                    <span>المحفوظة</span>
+                </button>
+
+                <button onclick="openModal('sentSessionsModal')" class="grid-btn">
+                    <span class="icon-lg">📤</span>
+                    <span>المرسلة</span>
+                </button>
+
+                <button onclick="clearPage()" class="grid-btn" style="color: #f39c12; border-color: #f39c12;">
+                    <span class="icon-lg">🗑️</span>
+                    <span>تفريغ الصفحة</span>
+                </button>
             </div>
         </div>
 
@@ -341,10 +362,10 @@
 
     <div class="modal" id="backupModal">
         <div class="modal-content">
-            <h3 style="margin-top:0; color: var(--primary);">☁️ اختيار نسخة قاعدة بيانات </h3>
+            <h3 style="margin-top:0; color: var(--primary);">☁️ اختيار نسخة قاعدة بيانات</h3>
+            <p style="font-size: 13px; color: #e74c3c; margin-bottom: 15px;">يجب اختيار قاعدة بيانات للبدء بالعمل</p>
             <div id="backupListContainer"></div>
-            <button onclick="closeModal('backupModal')" class="close-btn">إغلاق</button>
-        </div>
+            </div>
     </div>
 
 <script>
@@ -435,7 +456,9 @@
         const savedCurrentSession = localStorage.getItem('companion_current_session_' + currentUser);
         if (savedCurrentSession) sessionItems = JSON.parse(savedCurrentSession);
         
-        fetchCloudDB(true); 
+        // تم التعديل هنا لفتح النافذة بدلاً من التحميل التلقائي المخفي
+        fetchCloudDB(); 
+        
         renderUsersList();
         renderSessionList();
     }
@@ -907,13 +930,12 @@
         }
         openModal('systemItemsModal');
         document.getElementById('systemItemsSearch').value = '';
-        renderSystemItems('need'); // الافتراضي
+        renderSystemItems('need'); 
     }
 
     function renderSystemItems(filterType) {
         currentSystemFilter = filterType;
         
-        // تحديث شكل الأزرار
         const btnNeed = document.getElementById('filterNeedBtn');
         const btnAll = document.getElementById('filterAllBtn');
         
@@ -931,7 +953,6 @@
         const searchQuery = document.getElementById('systemItemsSearch').value.toLowerCase().trim();
         let itemsToShow = inventoryDB;
         
-        // التصفية بحسب البحث الداخلي إن وجد
         if (searchQuery) {
             itemsToShow = itemsToShow.filter(i => (i.name && i.name.toLowerCase().includes(searchQuery)) || (i.code && String(i.code).includes(searchQuery)));
         }
@@ -939,7 +960,7 @@
         itemsToShow.forEach(item => {
             const mNeed = getCalculatedMonthlyNeed(item);
             
-            if (filterType === 'need' && mNeed <= 0) return; // تخطي المواد بدون احتياج
+            if (filterType === 'need' && mNeed <= 0) return; 
             
             const li = document.createElement('li');
             li.style.cssText = "padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 14px; font-weight: bold; display: flex; flex-direction: column; align-items: flex-start; gap: 8px;";
@@ -1126,15 +1147,12 @@
             if (backups[slotKey] && backups[slotKey].data && backups[slotKey].data.length > 0) {
                 hasValidBackups = true;
                 
-                // --- الإضافة الجديدة: جلب الاسم المخصص من السحابة ---
-                // إذا كان هناك اسم مخصص (slotName) استخدمه، وإلا استخدم رقم النسخة (slotKey)
                 const displayName = backups[slotKey].slotName || slotKey.replace('slot_', 'نسخة سحابية ');
                 
                 const btn = document.createElement('button'); 
                 btn.className = 'user-btn'; 
                 btn.style.textAlign = 'right';
                 
-                // عرض الاسم (displayName) بدلاً من الاسم القديم
                 btn.innerHTML = `
                     <div style="color: var(--primary); font-size: 16px; font-weight: bold;">📁 ${displayName}</div>
                     <div style="font-size: 13px; color: #666; margin-top: 5px;">
