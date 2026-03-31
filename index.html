@@ -16,6 +16,11 @@
             --dark: #2c3e50;
             --bg: #f4f6f8;
             --warning: #f39c12;
+            --wa-green: #075e54; 
+            --wa-light: #25D366;
+            --text-main: #050505;
+            --text-sub: #65676B;
+            --bg-light: #f0f2f5;
         }
         body {
             font-family: 'Segoe UI', Tahoma, sans-serif;
@@ -26,7 +31,6 @@
         }
         * { box-sizing: border-box; }
 
-        /* --- شاشة الدخول --- */
         #loginScreen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: linear-gradient(135deg, #2c3e50, #3498db);
@@ -47,7 +51,6 @@
             border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer;
         }
 
-        /* --- الواجهة الرئيسية --- */
         #mainScreen { display: none; padding-bottom: 80px; }
         .header {
             background: var(--dark); color: white; padding: 10px 15px;
@@ -69,7 +72,6 @@
             border-radius: 10px; font-size: 16px; outline: none; box-shadow: 0 4px 6px rgba(0,0,0,0.05);
         }
         
-        /* --- تنسيقات القوائم والأسماء لضمان البقاء في نفس السطر --- */
         .suggestions {
             position: absolute; top: 65px; left: 15px; right: 15px; background: white;
             border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); max-height: 250px;
@@ -77,45 +79,40 @@
         }
         .suggestions li { 
             padding: 12px 15px; border-bottom: 1px solid #eee; font-size: 15px; font-weight: bold;
-            display: flex; justify-content: space-between; align-items: center; cursor: pointer;
-            gap: 10px; /* مسافة ثابتة بين الاسم والاحتياج */
+            display: flex; justify-content: space-between; align-items: center; cursor: pointer; gap: 10px;
         }
         .suggestions li.has-need { background-color: #e3f2fd !important; color: #0d47a1 !important; border-right: 4px solid #1976d2; }
+        .need-badge { background: #1976d2 !important; color: white !important; padding: 4px 10px; border-radius: 12px; font-size: 13px; font-weight: bold; white-space: nowrap !important; flex-shrink: 0; }
         
-        .need-badge { 
-            background: #1976d2 !important; color: white !important; padding: 4px 10px; 
-            border-radius: 12px; font-size: 13px; font-weight: bold;
-            white-space: nowrap !important; /* منع الاحتياج من النزول لسطر جديد */
-            flex-shrink: 0; /* منع المربع من الانكماش */
+        /* إضافة ستايل الزر الجديد */
+        .add-badge {
+            background: #1976d2;
+            color: white; 
+            padding: 4px 10px; 
+            border-radius: 12px; 
+            font-size: 13px; 
+            font-weight: bold; 
+            white-space: nowrap; 
+            border: none;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background 0.3s;
+        }
+        .add-badge.added {
+            background: #27ae60 !important;
+            cursor: default;
         }
 
         .items-list { padding: 10px 15px; }
-        .item-card {
-            background: white; border-radius: 10px; padding: 15px; margin-bottom: 10px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-right: 4px solid var(--primary);
-            display: flex; flex-direction: column; gap: 10px;
-        }
+        .item-card { background: white; border-radius: 10px; padding: 15px; margin-bottom: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); border-right: 4px solid var(--primary); display: flex; flex-direction: column; gap: 10px; }
         .item-card.has-need-card { border-right-color: #1976d2 !important; background-color: #f0f8ff !important; }
-        
-        .item-title { 
-            font-weight: bold; color: var(--dark); font-size: 15px; 
-            display: flex; justify-content: space-between; align-items: center;
-            gap: 10px; /* مسافة ثابتة بين الاسم والاحتياج */
-        }
-        
-        /* ضبط اسم المادة ليأخذ المساحة المتاحة ويلتف داخلياً إذا كان طويلاً جداً */
-        .item-title span:first-child, .suggestions li span:first-child {
-            flex: 1;
-            word-break: break-word;
-            text-align: right;
-        }
-
+        .item-title { font-weight: bold; color: var(--dark); font-size: 15px; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+        .item-title span:first-child, .suggestions li span:first-child { flex: 1; word-break: break-word; text-align: right; }
         .item-controls { display: flex; gap: 10px; align-items: center; }
         .item-controls input { flex: 1; padding: 10px; border: 1px solid #ccc; border-radius: 8px; text-align: center; font-size: 16px; font-weight: bold; }
         .item-controls input.auto-filled { border: 2px solid #27ae60; background-color: #eafaf1; color: #27ae60;}
         .btn-remove { background: #ffebee; color: var(--danger); border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; }
 
-        /* --- الشريط السفلي --- */
         .bottom-bar {
             position: fixed; bottom: 0; left: 0; width: 100%; background: white;
             padding: 10px 15px; box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
@@ -124,7 +121,6 @@
         .btn-save { background: var(--warning); color: white; padding: 12px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; width: 35%; }
         .btn-send { background: var(--success); color: white; padding: 12px; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; width: 65%; }
 
-        /* --- النوافذ المنبثقة --- */
         .modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.6); display: none; justify-content: center; align-items: center; z-index: 300;
@@ -134,7 +130,6 @@
         .user-btn:active { background: #e8f0fe; border-color: var(--primary); }
         .close-btn { margin-top:15px; padding:10px; border:none; background:#ccc; border-radius:8px; width:100%; font-weight:bold; cursor: pointer; }
 
-        /* تنسيقات قوائم الأرشيف */
         .archive-card { background: #f9f9f9; border: 1px solid #eee; border-radius: 10px; padding: 15px; margin-bottom: 10px; text-align: right; }
         .archive-title { font-weight: bold; color: var(--primary); margin-bottom: 5px; }
         .archive-details { font-size: 13px; color: #666; margin-bottom: 10px; }
@@ -143,10 +138,41 @@
         .btn-load { background: var(--primary); }
         .btn-delete { background: var(--danger); }
 
-        /* --- تنسيقات نافذة المراسلة --- */
+        .chat-list-item { 
+            display: flex; padding: 12px 20px; border-bottom: none; cursor: pointer; align-items: center; background: white; transition: background 0.2s; 
+        }
+        .chat-list-item:active { background: var(--bg-light); }
+        .chat-list-avatar { 
+            width: 55px; height: 55px; border-radius: 50%; background: #dfe6e9; display: flex; justify-content: center; align-items: center; font-size: 24px; margin-left: 15px; flex-shrink: 0; 
+        }
+        .chat-list-info { flex: 1; overflow: hidden; display: flex; flex-direction: column; justify-content: center; text-align: right; border-bottom: 1px solid #f0f2f5; padding-bottom: 10px; }
+        .chat-list-name-time { display: flex; justify-content: space-between; margin-bottom: 3px; align-items: center; }
+        .chat-list-name { font-weight: bold; font-size: 17px; color: var(--text-main); }
+        .chat-list-time { font-size: 13px; color: var(--text-sub); }
+        .chat-list-time.unread-time { color: var(--wa-light); font-weight: bold; }
+        .chat-list-preview-badge { display: flex; justify-content: space-between; align-items: center; }
+        .chat-list-preview { font-size: 14px; color: var(--text-sub); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 85%; }
+        .chat-list-badge { background: var(--wa-light); color: white; border-radius: 12px; padding: 0 7px; font-size: 12px; font-weight: bold; min-width: 22px; height: 22px; display: flex; align-items: center; justify-content: center; }
+
         .message-bubble { max-width: 85%; padding: 10px 12px; border-radius: 12px; margin-bottom: 8px; position: relative; font-size: 14px; word-wrap: break-word; }
         .msg-sent { align-self: flex-end; background-color: #dcf8c6; border-top-left-radius: 0; border: 1px solid #c8e6b1; }
         .msg-received { align-self: flex-start; background-color: white; border-top-right-radius: 0; border: 1px solid #ddd; }
+        
+        .chat-action-btn { background: none; border: none; font-size: 20px; cursor: pointer; padding: 5px; transition: 0.2s; }
+        .chat-action-btn:hover { opacity: 0.7; }
+        
+        .recording { color: red !important; animation: pulse 1s infinite; }
+        .unread-pulse { animation: pulseBadge 1.5s infinite; }
+        
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
+        @keyframes pulseBadge { 0% { transform: scale(1); } 50% { transform: scale(1.2); } 100% { transform: scale(1); } }
+
+        .chat-bottom-nav {
+            display: flex; justify-content: space-around; padding: 12px 25px; border-top: 1px solid #e4e6eb; background: #fafafa; font-size: 11px; color: var(--text-sub); font-weight: bold; text-align: center;
+        }
+        .chat-bottom-nav div { display: flex; flex-direction: column; align-items: center; gap: 4px; cursor: pointer;}
+        .chat-bottom-nav div.active { color: var(--text-main); }
+        .chat-bottom-nav span.icon { font-size: 22px; }
     </style>
 </head>
 <body>
@@ -175,7 +201,7 @@
 
                     <button onclick="logout()" class="nav-btn" style="color: #ffcccc; border-color: #ffcccc; padding: 4px 10px; font-size: 11px;">🚪 خروج</button>
                 </div>
-                <button onclick="fetchCloudDB()" style="background:none; border:none; color:white; font-size:20px; cursor:pointer;">🔄 اختيار نسخة قاعدة بيانات </button>
+                <button onclick="fetchCloudDB()" style="background:none; border:none; color:white; font-size:20px; cursor:pointer;">🔄</button>
             </div>
             <div class="header-bottom">
                 <button onclick="openModal('savedSessionsModal')" class="nav-btn">📁 المحفوظة</button>
@@ -208,27 +234,70 @@
     </div>
 
     <div class="modal" id="chatModal">
-        <div class="modal-content" style="width: 95%; height: 85vh; padding:0; overflow:hidden; display: flex; flex-direction: column; background:#e5ddd5;">
-            <div style="display:flex; height: 100%;">
-                <div id="chatUsersList" style="width: 80px; background: white; border-left: 1px solid #ddd; overflow-y: auto; text-align:center;">
+        <div class="modal-content" style="width: 100%; max-width: 500px; height: 100vh; max-height: 100vh; padding:0; overflow:hidden; display: flex; flex-direction: column; background:white; border-radius: 0;">
+            
+            <div id="chatListContainer" style="display: flex; flex-direction: column; flex: 1; overflow: hidden; background: white;">
+                
+                <div style="padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: white;">
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <button onclick="closeModal('chatModal')" style="background:var(--bg-light); border:none; border-radius:20px; padding: 5px 15px; font-weight:bold; font-size:14px; color:var(--danger); display:flex; justify-content:center; align-items:center; cursor:pointer;">إغلاق</button>
+                        <button style="background:var(--bg-light); border:none; border-radius:50%; width:35px; height:35px; display:flex; justify-content:center; align-items:center; cursor:pointer;">📷</button>
+                        <button style="background:var(--wa-light); color:white; border:none; border-radius:50%; width:35px; height:35px; font-size:22px; display:flex; justify-content:center; align-items:center; cursor:pointer;">+</button>
+                    </div>
+                    <span style="font-weight: 800; font-size: 28px; color: var(--text-main);">الدردشات</span>
+                </div>
+
+                <div style="padding: 5px 15px 15px; border-bottom: 1px solid #f0f2f5;">
+                    <div style="background: var(--bg-light); border-radius: 20px; padding: 10px 15px; display: flex; align-items: center; gap: 10px;">
+                        <span style="color:var(--text-sub); font-size: 16px;">🔍</span>
+                        <input type="text" placeholder="اسأل أو ابحث" style="border:none; background:transparent; width:100%; font-size:15px; outline:none; color: var(--text-main);">
+                    </div>
+                </div>
+
+                <div style="padding: 10px 15px; display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none;">
+                    <span style="background: #e7f3eb; color: #1a7f37; padding: 6px 15px; border-radius: 20px; font-size: 14px; font-weight: bold; white-space: nowrap; cursor: pointer;">الكل</span>
+                    <span style="background: var(--bg-light); color: var(--text-main); padding: 6px 15px; border-radius: 20px; font-size: 14px; font-weight: bold; white-space: nowrap; cursor: pointer;">المفضلة</span>
+                </div>
+
+                <div id="chatUsersList" style="flex: 1; overflow-y: auto; background: white;">
+                </div>
+
+                <div class="chat-bottom-nav">
+                    <div onclick="closeModal('chatModal')"><span class="icon">👤</span><span>أنت</span></div>
+                    <div class="active"><span class="icon" style="position:relative;">💬<span id="bottomNavBadge" style="display:none; position:absolute; top:-5px; left:-5px; background:var(--wa-light); color:white; border-radius:50%; padding:2px 5px; font-size:10px;">0</span></span><span>الدردشات</span></div>
+                </div>
+
+            </div>
+            
+            <div id="activeChatArea" style="display:none; flex:1; flex-direction:column; position: relative; height: 100%;">
+                
+                <div style="padding: 12px 15px; background: white; border-bottom: 1px solid #ddd; display: flex; align-items: center; gap: 15px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                    <button onclick="backToChatList()" style="background:var(--bg-light); border:none; border-radius:20px; padding: 5px 15px; font-weight:bold; font-size:14px; color:var(--danger); display:flex; justify-content:center; align-items:center; cursor:pointer;">رجوع</button>
+                    <div style="display: flex; flex-direction: column; text-align: right; flex: 1;">
+                        <span id="chatHeaderName" style="font-weight: bold; color: var(--text-main); font-size: 17px;"></span>
+                        <span id="chatHeaderStatus" style="font-size: 12px; color: var(--text-sub);"></span>
+                    </div>
+                    <button onclick="clearEntireChat()" style="background:none; border:none; font-size:22px; cursor:pointer; color: var(--danger); padding: 5px; border-radius: 50%; display: flex; align-items: center; justify-content: center;" title="مسح المحادثة">🗑️</button>
                 </div>
                 
-                <div style="flex:1; display:flex; flex-direction:column; position: relative;">
-                    <div style="padding: 12px; background: #f0f2f5; border-bottom: 1px solid #ddd; display: flex; justify-content: space-between; align-items: center;">
-                        <span id="chatHeaderName" style="font-weight: bold; color: #2c3e50; font-size: 14px;">اختر مستخدماً</span>
-                        <button onclick="closeModal('chatModal')" style="background:none; border:none; font-size:16px; cursor:pointer;">❌</button>
-                    </div>
+                <div id="messagesContainer" style="flex:1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; background: #efeae2;">
+                </div>
+                
+                <div id="chatInputArea" style="padding: 10px; background: #f0f2f5; display: flex; gap: 8px; align-items: center;">
                     
-                    <div id="messagesContainer" style="flex:1; padding: 15px; overflow-y: auto; display: flex; flex-direction: column;">
-                        <div style="text-align:center; color:#888; margin-top:30px; font-size:14px;">💬 اختر زميلاً لبدء المراسلة</div>
-                    </div>
+                    <button onclick="document.getElementById('imageInput').click()" class="chat-action-btn" title="إرفاق صورة">🖼️</button>
+                    <input type="file" id="imageInput" accept="image/*" style="display:none;" onchange="handleFileUpload(event)">
+
+                    <button onclick="document.getElementById('fileInput').click()" class="chat-action-btn" title="إرفاق ملف">📎</button>
+                    <input type="file" id="fileInput" style="display:none;" onchange="handleFileUpload(event)">
+
+                    <button id="micBtn" onclick="toggleRecording()" class="chat-action-btn" title="تسجيل صوتي">🎤</button>
                     
-                    <div id="chatInputArea" style="display:none; padding: 10px; background: #f0f2f5; gap: 8px; align-items: center;">
-                        <input type="text" id="chatTextInput" style="flex:1; padding: 10px; border-radius: 20px; border: 1px solid #ccc; font-size:14px; outline:none;" placeholder="رسالتك..." onkeyup="if(event.key==='Enter') sendTextMessage()">
-                        <button onclick="sendTextMessage()" style="background:#3498db; color:white; border:none; border-radius:50%; width:40px; height:40px; font-size:16px; cursor:pointer;">➤</button>
-                    </div>
+                    <input type="text" id="chatTextInput" style="flex:1; padding: 12px 15px; border-radius: 20px; border: none; font-size:15px; outline:none; background: white;" placeholder="اكتب رسالة..." onkeyup="if(event.key==='Enter') sendTextMessage()">
+                    <button onclick="sendTextMessage()" style="background:var(--wa-light); color:white; border:none; border-radius:50%; width:40px; height:40px; font-size:16px; cursor:pointer; display:flex; justify-content:center; align-items:center;">➤</button>
                 </div>
             </div>
+
         </div>
     </div>
 
@@ -244,7 +313,7 @@
         <div class="modal-content">
             <h3 style="margin-top:0; color: var(--success);">📤 الجلسات المرسلة</h3>
             <div id="sentSessionsContainer"></div>
-            <button onclick="closeModal('sentSessionsModal')" class="close-btn">إغلاق</button>
+            <button onclick="closeModal('sentSessionsModal')" class="close-btn">رجوع</button>
         </div>
     </div>
 
@@ -262,7 +331,7 @@
       authDomain: "msl2-841a3.firebaseapp.com",
       databaseURL: "https://msl2-841a3-default-rtdb.asia-southeast1.firebasedatabase.app",
       projectId: "msl2-841a3",
-      storageBucket: "msl2-841a3.firebasestorage.app",
+      storageBucket: "msl2-841a3.appspot.com", 
       messagingSenderId: "738131472795",
       appId: "1:738131472795:web:77193cde0333cea72f713e",
       measurementId: "G-NS3KXW5VX7"
@@ -271,18 +340,10 @@
     if (!firebase.apps.length) firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // القائمة المحدثة للمستخدمين والأقسام
     const USERS = {
-        "وعد": "0000",
-        "حسين": "1111",
-        "احمد": "0000",
-        "محمد": "0000",
-        "حيدر": "0000",
-        "نور": "0000",
-        "الطوارئ": "0000",
-        "الاستشارية": "0000",
-        "صالة العمليات": "0000",
-        "مؤمل": "0000"
+        "وعد": "0000", "حسين": "1111", "احمد": "0000", "محمد": "0000",
+        "حيدر": "0000", "نور": "0000", "الطوارئ": "0000", "الاستشارية": "0000",
+        "صالة العمليات": "0000", "مؤمل": "0000"
     };
     
     let currentUser = "";
@@ -290,9 +351,16 @@
     let sessionItems = [];
     let currentChatPartner = null;
     let chatListenerRef = null;
+    let statusListenerRef = null;
     let unreadMessagesTracker = new Map();
+    let globalUsersStatus = {}; 
+    let chatMetadata = {};
+    let chatMessagesMap = {}; // خريطة لحفظ الرسائل حتى نكدر نفتح الجلسات منها
 
-    // --- نظام تسجيل الدخول ---
+    let mediaRecorder;
+    let audioChunks = [];
+    let isRecording = false;
+
     window.onload = () => {
         const savedUser = localStorage.getItem('companion_user');
         if (savedUser && USERS[savedUser]) {
@@ -315,22 +383,21 @@
 
     function logout() {
         if(confirm("هل أنت متأكد من تسجيل الخروج؟")) {
-            localStorage.removeItem('companion_user');
-            location.reload();
+            db.ref('/users_status/' + currentUser).set({ online: false, last_seen: firebase.database.ServerValue.TIMESTAMP }).then(() => {
+                localStorage.removeItem('companion_user'); location.reload();
+            });
         }
     }
 
-    // --- تفريغ الصفحة ---
-    function clearPage() {
-        if(sessionItems.length === 0) {
-            alert("الصفحة فارغة بالفعل!");
-            return;
-        }
-        if(confirm("هل أنت متأكد من مسح جميع المواد من القائمة الحالية؟")) {
-            sessionItems = [];
-            renderSessionList();
-            showToast("تم تفريغ الصفحة 🗑️");
-        }
+    function managePresence() {
+        const userStatusRef = db.ref('/users_status/' + currentUser);
+        db.ref('.info/connected').on('value', (snap) => {
+            if (snap.val() === true) {
+                userStatusRef.onDisconnect().set({ online: false, last_seen: firebase.database.ServerValue.TIMESTAMP }).then(() => {
+                    userStatusRef.set({ online: true, last_seen: firebase.database.ServerValue.TIMESTAMP });
+                });
+            }
+        });
     }
 
     function initMainScreen() {
@@ -338,33 +405,34 @@
         document.getElementById('mainScreen').style.display = 'block';
         document.getElementById('userNameDisplay').innerText = currentUser;
         
-        initGlobalChatListener(); // تفعيل استماع المراسلة بصمت لعد الرسائل غير المقروءة
+        managePresence();
+        initGlobalStatusListener(); 
+        initGlobalChatListener(); 
         
-        // استعادة الجلسة المفتوحة (العمل غير المكتمل) عند عمل ريفرش للصفحة
         const savedCurrentSession = localStorage.getItem('companion_current_session_' + currentUser);
-        if (savedCurrentSession) {
-            sessionItems = JSON.parse(savedCurrentSession);
-        }
+        if (savedCurrentSession) sessionItems = JSON.parse(savedCurrentSession);
         
-        fetchCloudDB(true); // تمرير true للتحميل التلقائي لأول نسخة
-        
+        fetchCloudDB(true); 
         renderUsersList();
         renderSessionList();
     }
 
-    // --- النوافذ المنبثقة ---
-    function openModal(id) {
-        document.getElementById(id).style.display = 'flex';
-        if(id === 'savedSessionsModal') renderSavedSessions();
-        if(id === 'sentSessionsModal') renderSentSessions();
+    function initGlobalStatusListener() {
+        db.ref('/users_status/').on('value', snap => {
+            globalUsersStatus = snap.val() || {};
+            if (document.getElementById('chatListContainer').style.display !== 'none') {
+                renderChatUsersList();
+            }
+        });
     }
-    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
 
-    // --- نظام المراسلة الجديد صامت ---
     function initGlobalChatListener() {
         unreadMessagesTracker.clear(); 
+        
         Object.keys(USERS).forEach(partner => {
             if (partner === currentUser) return; 
+            
+            if (!chatMetadata[partner]) chatMetadata[partner] = { lastMsgTime: 0, unreadCount: 0, lastMsgText: '', isInitialLoad: true, lastMsgSender: '' };
             
             const roomId = getRoomId(currentUser, partner);
             const chatRef = db.ref('chats/' + roomId);
@@ -372,28 +440,69 @@
             chatRef.limitToLast(20).on('child_added', (snapshot) => {
                 const msg = snapshot.val();
                 const msgId = snapshot.key;
-                if (msg && msg.sender !== currentUser && !msg.isRead) {
+                
+                if (msg.timestamp > chatMetadata[partner].lastMsgTime) {
+                    chatMetadata[partner].lastMsgTime = msg.timestamp;
+                    chatMetadata[partner].lastMsgText = msg.type === 'text' ? msg.content : (msg.type === 'session' ? '📁 جلسة عمل' : (msg.type === 'audio' ? '🎙️ مقطع صوتي' : '📎 مرفق'));
+                    chatMetadata[partner].lastMsgSender = msg.sender;
+                }
+
+                if (msg.sender !== currentUser && !msg.isRead) {
                     unreadMessagesTracker.set(msgId, msg.sender);
-                    updateGlobalBadge();
+                    chatMetadata[partner].unreadCount++;
+                    
+                    if (!chatMetadata[partner].isInitialLoad && currentChatPartner !== partner) {
+                        showNewMessageAlert(partner);
+                    }
+                }
+                
+                updateGlobalBadge();
+                if (document.getElementById('chatListContainer').style.display !== 'none') renderChatUsersList();
+            });
+
+            chatRef.on('child_removed', () => {
+                if (document.getElementById('chatListContainer').style.display !== 'none') {
+                    renderChatUsersList(); 
                 }
             });
 
-            chatRef.limitToLast(20).on('child_changed', (snapshot) => {
+            chatRef.limitToLast(20).once('value', () => {
+                chatMetadata[partner].isInitialLoad = false;
+            });
+
+            chatRef.on('child_changed', (snapshot) => {
                 const msg = snapshot.val();
                 const msgId = snapshot.key;
-                if (msg && msg.isRead && unreadMessagesTracker.has(msgId)) {
+                
+                if (msg.isRead && unreadMessagesTracker.has(msgId)) {
                     unreadMessagesTracker.delete(msgId);
+                    chatMetadata[partner].unreadCount = Math.max(0, chatMetadata[partner].unreadCount - 1);
                     updateGlobalBadge();
+                    if (document.getElementById('chatListContainer').style.display !== 'none') renderChatUsersList();
                 }
             });
         });
     }
 
     function updateGlobalBadge() {
+        const size = unreadMessagesTracker.size;
+        
         const badge = document.getElementById('globalUnreadBadge');
         if(badge) {
-            badge.innerText = unreadMessagesTracker.size;
-            badge.style.display = unreadMessagesTracker.size > 0 ? 'inline-block' : 'none';
+            badge.innerText = size;
+            if(size > 0) {
+                badge.style.display = 'inline-block';
+                badge.classList.add('unread-pulse');
+            } else {
+                badge.style.display = 'none';
+                badge.classList.remove('unread-pulse');
+            }
+        }
+
+        const bottomBadge = document.getElementById('bottomNavBadge');
+        if(bottomBadge) {
+            bottomBadge.innerText = size;
+            bottomBadge.style.display = size > 0 ? 'inline-block' : 'none';
         }
     }
 
@@ -401,75 +510,239 @@
         const listContainer = document.getElementById('chatUsersList');
         listContainer.innerHTML = '';
         
-        Object.keys(USERS).forEach(user => {
-            if (user === currentUser) return; 
+        const sortedPartners = Object.keys(USERS)
+            .filter(u => u !== currentUser)
+            .sort((a, b) => {
+                const timeA = chatMetadata[a] ? chatMetadata[a].lastMsgTime : 0;
+                const timeB = chatMetadata[b] ? chatMetadata[b].lastMsgTime : 0;
+                return timeB - timeA; 
+            });
+
+        sortedPartners.forEach(partner => {
+            const meta = chatMetadata[partner] || { lastMsgTime: 0, unreadCount: 0, lastMsgText: '', lastMsgSender: '' };
+            let timeStr = '';
+            
+            if (meta.lastMsgTime > 0) {
+                const date = new Date(meta.lastMsgTime);
+                const isToday = new Date().toDateString() === date.toDateString();
+                timeStr = isToday ? date.toLocaleTimeString('ar-IQ', {hour:'2-digit', minute:'2-digit'}) : 'أمس';
+            }
+            
+            const isOnline = globalUsersStatus[partner] && globalUsersStatus[partner].online;
+            const statusIndicator = isOnline ? '<span style="color:#25D366; font-size:10px; margin-right:5px;">🟢</span>' : '';
+            const unreadClass = meta.unreadCount > 0 ? 'unread-time' : '';
+            
+            const sentTick = (meta.lastMsgSender === currentUser && meta.lastMsgTime > 0) ? '<span style="color:#65676B; font-size:12px; margin-left:3px;">✓✓</span>' : '';
+
             const div = document.createElement('div');
-            div.style = "padding: 15px 5px; border-bottom: 1px solid #eee; cursor: pointer; font-size: 13px; font-weight:bold; color: #2c3e50;";
-            div.innerText = user;
-            div.onclick = () => {
-                document.querySelectorAll('#chatUsersList div').forEach(el => el.style.background = 'transparent');
-                div.style.background = '#e8f0fe';
-                loadChatWith(user);
-            };
+            div.className = 'chat-list-item';
+            div.innerHTML = `
+                <div class="chat-list-avatar">👤</div>
+                <div class="chat-list-info">
+                    <div class="chat-list-name-time">
+                        <div style="display: flex; align-items: center;">
+                            <span class="chat-list-name">${partner}</span>
+                            ${statusIndicator}
+                        </div>
+                        <span class="chat-list-time ${unreadClass}">${timeStr}</span>
+                    </div>
+                    <div class="chat-list-preview-badge">
+                        <span class="chat-list-preview">${sentTick} ${escapeChatHtml(meta.lastMsgText) || 'اضغط لبدء المراسلة...'}</span>
+                        ${meta.unreadCount > 0 ? `<span class="chat-list-badge">${meta.unreadCount}</span>` : ''}
+                    </div>
+                </div>
+            `;
+            div.onclick = () => loadChatWith(partner);
             listContainer.appendChild(div);
         });
         
-        document.getElementById('globalUnreadBadge').style.display = 'none';
+        document.getElementById('chatListContainer').style.display = 'flex';
+        document.getElementById('activeChatArea').style.display = 'none';
     }
 
     function loadChatWith(partnerName) {
         currentChatPartner = partnerName;
         document.getElementById('chatHeaderName').innerText = partnerName;
-        document.getElementById('chatInputArea').style.display = 'flex';
         
+        document.getElementById('chatListContainer').style.display = 'none';
+        document.getElementById('activeChatArea').style.display = 'flex';
+        
+        chatMessagesMap = {}; // تصفير الخريطة عند فتح محادثة جديدة
+
+        if (statusListenerRef) statusListenerRef.off();
+        statusListenerRef = db.ref('/users_status/' + partnerName);
+        statusListenerRef.on('value', snap => {
+            const status = snap.val();
+            const statusEl = document.getElementById('chatHeaderStatus');
+            if (status && status.online) {
+                statusEl.innerText = 'متصل حالياً';
+                statusEl.style.color = 'var(--wa-light)';
+            } else if (status && status.last_seen) {
+                const date = new Date(status.last_seen);
+                const isToday = new Date().toDateString() === date.toDateString();
+                const dayStr = isToday ? 'اليوم' : date.toLocaleDateString('ar-IQ');
+                statusEl.innerText = `آخر ظهور: ${dayStr} ${date.toLocaleTimeString('ar-IQ', {hour:'2-digit', minute:'2-digit'})}`;
+                statusEl.style.color = 'var(--text-sub)';
+            } else {
+                statusEl.innerText = 'غير متصل';
+                statusEl.style.color = 'var(--text-sub)';
+            }
+        });
+
         const messagesContainer = document.getElementById('messagesContainer');
         messagesContainer.innerHTML = ''; 
         const roomId = getRoomId(currentUser, partnerName);
 
         if (chatListenerRef) chatListenerRef.off();
-        const chatRef = db.ref('chats/' + roomId);
-        chatListenerRef = chatRef; 
+        chatListenerRef = db.ref('chats/' + roomId).limitToLast(50);
 
-        chatRef.limitToLast(50).on('child_added', (snapshot) => {
+        chatListenerRef.on('child_added', (snapshot) => {
             const msg = snapshot.val();
             msg.id = snapshot.key; 
             
+            chatMessagesMap[msg.id] = msg; // حفظ الرسالة في الخريطة للوصول السريع للجلسات
+
             if (msg.sender !== currentUser && !msg.isRead) {
                 db.ref('chats/' + roomId + '/' + msg.id).update({ isRead: true });
+                chatMetadata[partnerName].unreadCount = Math.max(0, chatMetadata[partnerName].unreadCount - 1);
             }
+            
             renderMessage(msg);
             messagesContainer.scrollTop = messagesContainer.scrollHeight; 
         });
+
+        chatListenerRef.on('child_changed', (snapshot) => {
+            const msg = snapshot.val();
+            msg.id = snapshot.key;
+            chatMessagesMap[msg.id] = msg;
+            renderMessage(msg);
+        });
+
+        chatListenerRef.on('child_removed', (snapshot) => {
+            const msgId = snapshot.key;
+            const msgDiv = document.getElementById('msg-' + msgId);
+            if(msgDiv) msgDiv.remove();
+        });
+    }
+
+    function backToChatList() {
+        currentChatPartner = null;
+        if (chatListenerRef) chatListenerRef.off();
+        if (statusListenerRef) statusListenerRef.off();
+        renderChatUsersList();
+    }
+
+    function deleteMessage(msgId) {
+        if(confirm("هل أنت متأكد من حذف هذه الرسالة؟")) {
+            const roomId = getRoomId(currentUser, currentChatPartner);
+            db.ref('chats/' + roomId + '/' + msgId).remove()
+            .catch(e => alert("خطأ أثناء حذف الرسالة: " + e.message));
+        }
+    }
+
+    function clearEntireChat() {
+        if(!currentChatPartner) return;
+        if(confirm("هل أنت متأكد من مسح جميع رسائل المحادثة بالكامل؟ لا يمكن التراجع عن هذا الإجراء.")) {
+            const roomId = getRoomId(currentUser, currentChatPartner);
+            db.ref('chats/' + roomId).remove()
+            .then(() => {
+                document.getElementById('messagesContainer').innerHTML = '';
+                chatMetadata[currentChatPartner] = { lastMsgTime: 0, unreadCount: 0, lastMsgText: '', isInitialLoad: false, lastMsgSender: '' };
+                showToast("تم مسح المحادثة بالكامل 🗑️");
+            })
+            .catch(e => alert("حدث خطأ أثناء مسح المحادثة: " + e.message));
+        }
     }
 
     function renderMessage(msg) {
         const container = document.getElementById('messagesContainer');
-        const div = document.createElement('div');
+        
+        let div = document.getElementById('msg-' + msg.id);
+        let isNew = false;
+        
+        if (!div) {
+            div = document.createElement('div');
+            div.id = 'msg-' + msg.id;
+            isNew = true;
+        }
+
         const isMe = msg.sender === currentUser;
         div.className = `message-bubble ${isMe ? 'msg-sent' : 'msg-received'}`;
         
-        let content = escapeChatHtml(msg.content);
-        
+        let contentHtml = escapeChatHtml(msg.content);
+        const fileUrlToShow = msg.fileUrl || msg.content;
+
         if (msg.type === 'session') {
-            content = "📁 جلسة عمل (يجب فتحها من البرنامج الأساسي)";
+            const count = (msg.sessionData && msg.sessionData.itemsCount) ? msg.sessionData.itemsCount : 'مجموعة';
+            contentHtml = `
+                <div style="display:flex; flex-direction:column; gap:8px; background:#e3f2fd; padding:10px; border-radius:8px; border-right: 4px solid #1976d2; direction:rtl;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:24px;">📁</span>
+                        <div>
+                            <div style="font-weight:bold; font-size:14px; color:#0d47a1;">جلسة عمل مشتركة</div>
+                            <div style="font-size:12px; color:#1565c0;">تحتوي على ${count} مواد</div>
+                        </div>
+                    </div>
+                    <button onclick="loadSessionFromChat('${msg.id}')" style="background:#1976d2; color:white; border:none; padding:8px; border-radius:5px; font-weight:bold; cursor:pointer; font-size:13px; box-shadow:0 2px 4px rgba(0,0,0,0.1);">📥 استيراد وتعديل الجلسة</button>
+                </div>
+            `;
         } else if (msg.type === 'image') {
-            content = "🖼️ صورة مرفقة (افتح البرنامج الأساسي لمشاهدتها)";
+            contentHtml = fileUrlToShow ? `
+                <a href="${fileUrlToShow}" download="${msg.fileName || 'image.jpg'}" title="انقر لتحميل أو فتح الصورة">
+                    <img src="${fileUrlToShow}" style="max-width:100%; border-radius:8px; display:block;">
+                </a>
+            ` : "🖼️ صورة مرفقة";
         } else if (msg.type === 'file' || msg.type === 'db_file') {
-            content = "📎 ملف مرفق (افتح البرنامج الأساسي للتحميل)";
+            contentHtml = fileUrlToShow ? `
+                <div style="display:flex; align-items:center; gap:10px; background:rgba(0,0,0,0.05); padding:10px; border-radius:8px; direction:rtl;">
+                    <span style="font-size:24px;">📄</span>
+                    <div style="flex:1; overflow:hidden;">
+                        <div style="font-weight:bold; font-size:13px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" dir="ltr">${msg.fileName || 'ملف_مرفق'}</div>
+                    </div>
+                    <a href="${fileUrlToShow}" download="${msg.fileName || 'attachment'}" style="background:var(--primary); color:white; padding:6px 12px; border-radius:5px; text-decoration:none; font-size:12px; font-weight:bold; white-space:nowrap; box-shadow:0 2px 4px rgba(0,0,0,0.1);">تحميل</a>
+                </div>
+            ` : "📎 ملف مرفق";
         } else if (msg.type === 'audio') {
-            content = "🎙️ رسالة صوتية (افتح البرنامج الأساسي للاستماع)";
+            contentHtml = fileUrlToShow ? `<audio controls src="${fileUrlToShow}" style="max-width: 220px; height: 40px; outline:none;"></audio>` : "🎙️ رسالة صوتية";
         }
         
         const time = new Date(msg.timestamp).toLocaleTimeString('ar-IQ', {hour:'2-digit', minute:'2-digit'});
-        const tickMark = isMe ? (msg.isRead ? '<span style="color:#3498db">✓✓</span>' : '✓') : '';
+        const tickMark = isMe ? (msg.isRead ? '<span style="color:#34db7a; font-weight:bold; font-size:12px;">✓✓</span>' : '<span style="color:#999; font-size:12px;">✓</span>') : '';
         
         div.innerHTML = `
-            <div style="color: #2c3e50;">${content}</div>
-            <div style="font-size:10px; color:#999; margin-top:5px; text-align:left; direction:ltr;">
-                ${time} ${tickMark}
+            <div style="color: #2c3e50;">${contentHtml}</div>
+            <div style="font-size:10px; color:#999; margin-top:5px; display:flex; justify-content:space-between; align-items:center; direction:ltr;">
+                <div style="display:flex; gap:5px; align-items:center;">
+                    <span>${time}</span>
+                    <span>${tickMark}</span>
+                </div>
+                <button onclick="deleteMessage('${msg.id}')" style="background:none; border:none; cursor:pointer; font-size:14px; padding:0; opacity: 0.5; transition: 0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.5" title="حذف الرسالة">🗑️</button>
             </div>
         `;
-        container.appendChild(div);
+        
+        if (isNew) {
+            container.appendChild(div);
+        }
+    }
+
+    function loadSessionFromChat(msgId) {
+        const msg = chatMessagesMap[msgId];
+        if (!msg || !msg.sessionData || !msg.sessionData.sessionData) {
+            alert("حدث خطأ: بيانات الجلسة غير متوفرة.");
+            return;
+        }
+        
+        if (sessionItems.length > 0) {
+            if (!confirm("توجد مواد حالياً في الصفحة قيد التعديل. هل تريد مسحها واستيراد هذه الجلسة بدلاً منها؟")) {
+                return;
+            }
+        }
+        
+        sessionItems = JSON.parse(JSON.stringify(msg.sessionData.sessionData));
+        renderSessionList();
+        closeModal('chatModal');
+        showToast("تم استيراد الجلسة للتعديل بنجاح 📝");
+        window.scrollTo(0, 0); 
     }
 
     function escapeChatHtml(text) {
@@ -483,363 +756,377 @@
         if (text && currentChatPartner) {
             const roomId = getRoomId(currentUser, currentChatPartner);
             db.ref('chats/' + roomId).push().set({
-                sender: currentUser,
-                type: 'text',
-                content: text,
-                timestamp: firebase.database.ServerValue.TIMESTAMP,
-                isRead: false
+                sender: currentUser, type: 'text', content: text, timestamp: firebase.database.ServerValue.TIMESTAMP, isRead: false
             });
             input.value = '';
         }
     }
 
-    // --- الجلسات المحفوظة (المسودات) ---
+    function handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        if (file.size > 2 * 1024 * 1024) {
+            alert("حجم الملف كبير جداً! يرجى اختيار ملف أقل من 2 ميجابايت.");
+            event.target.value = '';
+            return;
+        }
+
+        let type = 'file';
+        if (file.type && file.type.startsWith('image/')) type = 'image';
+        else if (file.name && file.name.match(/\.(jpg|jpeg|png|gif|webp)$/i)) type = 'image';
+
+        showToast("جاري المعالجة والإرسال... ⏳");
+
+        const fileName = file.name;
+        const reader = new FileReader();
+        
+        reader.onload = function(e) {
+            const base64 = e.target.result;
+            sendAttachmentMessage(base64, type, fileName);
+            showToast("تم الإرسال بنجاح! ✅");
+        };
+        reader.readAsDataURL(file);
+
+        setTimeout(() => { event.target.value = ''; }, 1000);
+    }
+    
+    async function toggleRecording() {
+        const micBtn = document.getElementById('micBtn');
+
+        if (!isRecording) {
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                mediaRecorder = new MediaRecorder(stream);
+                audioChunks = [];
+
+                mediaRecorder.ondataavailable = e => {
+                    if (e.data.size > 0) audioChunks.push(e.data);
+                };
+
+                mediaRecorder.onstop = () => {
+                    showToast("جاري إرسال البصمة... ⏳");
+                    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+                    const mimeType = isSafari ? 'audio/mp4' : 'audio/webm';
+                    const ext = isSafari ? 'mp4' : 'webm';
+                    
+                    const audioBlob = new Blob(audioChunks, { type: mimeType });
+                    
+                    if (audioBlob.size < 1000) {
+                        showToast("التسجيل قصير جداً");
+                        return;
+                    }
+
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        if(e.target.result.length > 2000000) { 
+                            alert("التسجيل طويل جداً!"); 
+                            return; 
+                        }
+                        sendAttachmentMessage(e.target.result, 'audio', `audio_record_${Date.now()}.${ext}`);
+                        showToast("تم إرسال البصمة! ✅");
+                    };
+                    reader.readAsDataURL(audioBlob);
+                    
+                    stream.getTracks().forEach(track => track.stop());
+                };
+
+                mediaRecorder.start();
+                isRecording = true;
+                micBtn.classList.add('recording');
+                showToast("جاري التسجيل... 🎙️ (انقر للإرسال)");
+            } catch (err) {
+                alert("لم تسمح للمتصفح باستخدام المايكروفون. يرجى إعطاء الصلاحية.");
+            }
+        } else {
+            mediaRecorder.stop();
+            isRecording = false;
+            micBtn.classList.remove('recording');
+        }
+    }
+
+    function sendAttachmentMessage(base64Data, type, customFileName) {
+        if (!currentChatPartner) return;
+        const roomId = getRoomId(currentUser, currentChatPartner);
+        
+        db.ref('chats/' + roomId).push().set({
+            sender: currentUser, 
+            type: type, 
+            content: base64Data,
+            fileUrl: base64Data,
+            fileName: customFileName, 
+            timestamp: firebase.database.ServerValue.TIMESTAMP, 
+            isRead: false
+        }).catch(err => {
+            alert("حدث خطأ أثناء الإرسال: " + err.message);
+        });
+    }
+
+    function clearPage() {
+        if(sessionItems.length === 0) { alert("الصفحة فارغة بالفعل!"); return; }
+        if(confirm("هل أنت متأكد من مسح جميع المواد من القائمة الحالية؟")) {
+            sessionItems = []; renderSessionList(); showToast("تم تفريغ الصفحة 🗑️");
+        }
+    }
+
+    function openModal(id) {
+        document.getElementById(id).style.display = 'flex';
+        if(id === 'savedSessionsModal') renderSavedSessions();
+        if(id === 'sentSessionsModal') renderSentSessions();
+    }
+    function closeModal(id) { document.getElementById(id).style.display = 'none'; }
+
     function saveSessionLocally() {
         if(sessionItems.length === 0) { alert("القائمة فارغة، لا يوجد شيء لحفظه!"); return; }
-        
         let saved = JSON.parse(localStorage.getItem('companion_saved_' + currentUser) || '[]');
-        const sessionName = prompt("أدخل اسماً لهذه الجلسة (مثال: طلبية المذخر):", "جلسة " + new Date().toLocaleDateString());
-        
+        const sessionName = prompt("أدخل اسماً لهذه الجلسة:", "جلسة " + new Date().toLocaleDateString());
         if(sessionName) {
-            saved.push({
-                id: Date.now(),
-                name: sessionName,
-                date: new Date().toLocaleString(),
-                items: JSON.parse(JSON.stringify(sessionItems))
-            });
+            saved.push({ id: Date.now(), name: sessionName, date: new Date().toLocaleString(), items: JSON.parse(JSON.stringify(sessionItems)) });
             localStorage.setItem('companion_saved_' + currentUser, JSON.stringify(saved));
-            
-            showToast("تم حفظ الجلسة بنجاح 💾");
-            sessionItems = [];
-            renderSessionList();
+            showToast("تم حفظ الجلسة بنجاح 💾"); sessionItems = []; renderSessionList();
         }
     }
 
     function renderSavedSessions() {
         const container = document.getElementById('savedSessionsContainer');
         let saved = JSON.parse(localStorage.getItem('companion_saved_' + currentUser) || '[]');
-        
-        if(saved.length === 0) {
-            container.innerHTML = '<p style="color:#999;">لا توجد جلسات محفوظة.</p>';
-            return;
-        }
-
+        if(saved.length === 0) { container.innerHTML = '<p style="color:#999;">لا توجد جلسات محفوظة.</p>'; return; }
         container.innerHTML = '';
         saved.slice().reverse().forEach((sess, i) => {
             const index = saved.length - 1 - i;
-            const div = document.createElement('div');
-            div.className = 'archive-card';
-            div.innerHTML = `
-                <div class="archive-title">${sess.name}</div>
-                <div class="archive-details">🕒 ${sess.date} | 📦 ${sess.items.length} مواد</div>
-                <div class="archive-actions">
-                    <button class="btn-load" onclick="loadSavedSession(${index})">استرجاع للتعديل</button>
-                    <button class="btn-delete" onclick="deleteSavedSession(${index})">حذف</button>
-                </div>
-            `;
+            const div = document.createElement('div'); div.className = 'archive-card';
+            div.innerHTML = `<div class="archive-title">${sess.name}</div><div class="archive-details">🕒 ${sess.date} | 📦 ${sess.items.length} مواد</div><div class="archive-actions"><button class="btn-load" onclick="loadSavedSession(${index})">استرجاع للتعديل</button><button class="btn-delete" onclick="deleteSavedSession(${index})">حذف</button></div>`;
             container.appendChild(div);
         });
     }
 
     function loadSavedSession(index) {
         let saved = JSON.parse(localStorage.getItem('companion_saved_' + currentUser) || '[]');
-        if(sessionItems.length > 0) {
-            if(!confirm("القائمة الحالية غير فارغة. هل تريد مسحها وتحميل الجلسة المحفوظة؟")) return;
-        }
-        sessionItems = saved[index].items;
-        renderSessionList();
-        closeModal('savedSessionsModal');
-        showToast("تم تحميل الجلسة 📂");
+        if(sessionItems.length > 0 && !confirm("القائمة الحالية غير فارغة. هل تريد مسحها وتحميل الجلسة المحفوظة؟")) return;
+        sessionItems = saved[index].items; renderSessionList(); closeModal('savedSessionsModal'); showToast("تم تحميل الجلسة 📂");
     }
 
     function deleteSavedSession(index) {
         if(confirm("هل أنت متأكد من حذف هذه الجلسة؟")) {
             let saved = JSON.parse(localStorage.getItem('companion_saved_' + currentUser) || '[]');
-            saved.splice(index, 1);
-            localStorage.setItem('companion_saved_' + currentUser, JSON.stringify(saved));
-            renderSavedSessions();
+            saved.splice(index, 1); localStorage.setItem('companion_saved_' + currentUser, JSON.stringify(saved)); renderSavedSessions();
         }
     }
 
-    // --- الجلسات المرسلة (الأرشيف والاسترجاع) ---
     function logSentSession(targetUser, itemsToSave) {
         let sent = JSON.parse(localStorage.getItem('companion_sent_' + currentUser) || '[]');
-        sent.push({
-            id: Date.now(),
-            to: targetUser,
-            date: new Date().toLocaleString(),
-            items: JSON.parse(JSON.stringify(itemsToSave))
-        });
+        sent.push({ id: Date.now(), to: targetUser, date: new Date().toLocaleString(), items: JSON.parse(JSON.stringify(itemsToSave)) });
         localStorage.setItem('companion_sent_' + currentUser, JSON.stringify(sent));
     }
 
     function renderSentSessions() {
         const container = document.getElementById('sentSessionsContainer');
         let sent = JSON.parse(localStorage.getItem('companion_sent_' + currentUser) || '[]');
-        
-        if(sent.length === 0) {
-            container.innerHTML = '<p style="color:#999;">لم تقم بإرسال أي جلسة من الهاتف بعد.</p>';
-            return;
-        }
-
+        if(sent.length === 0) { container.innerHTML = '<p style="color:#999;">لم تقم بإرسال أي جلسة من الهاتف بعد.</p>'; return; }
         container.innerHTML = '';
         sent.slice().reverse().forEach((sess, i) => {
             const index = sent.length - 1 - i;
-            const div = document.createElement('div');
-            div.className = 'archive-card';
-            const count = sess.items ? sess.items.length : (sess.count || 0);
-            
-            div.innerHTML = `
-                <div class="archive-title">إلى د. ${sess.to} ✉️</div>
-                <div class="archive-details">🕒 ${sess.date}<br>📦 تحتوي على ${count} مواد</div>
-                <div class="archive-actions">
-                    <button class="btn-load" onclick="loadSentSession(${index})">استرجاع للتعديل</button>
-                    <button class="btn-delete" onclick="deleteSentSession(${index})">حذف</button>
-                </div>
-            `;
+            const div = document.createElement('div'); div.className = 'archive-card';
+            div.innerHTML = `<div class="archive-title">إلى د. ${sess.to} ✉️</div><div class="archive-details">🕒 ${sess.date}<br>📦 تحتوي على ${sess.items.length} مواد</div><div class="archive-actions"><button class="btn-load" onclick="loadSentSession(${index})">استرجاع للتعديل</button><button class="btn-delete" onclick="deleteSentSession(${index})">حذف</button></div>`;
             container.appendChild(div);
         });
     }
 
     function loadSentSession(index) {
         let sent = JSON.parse(localStorage.getItem('companion_sent_' + currentUser) || '[]');
-        
-        if (!sent[index].items) {
-            alert("هذه الجلسة قديمة ولا تحتوي على بيانات المواد القابلة للاسترجاع. يرجى استخدام الجلسات الجديدة.");
-            return;
-        }
-
-        if(sessionItems.length > 0) {
-            if(!confirm("القائمة الحالية غير فارغة. هل تريد مسحها وتحميل هذه الجلسة المرسلة؟")) return;
-        }
-        
-        sessionItems = JSON.parse(JSON.stringify(sent[index].items));
-        renderSessionList();
-        closeModal('sentSessionsModal');
-        showToast("تم استرجاع الجلسة المرسلة للتعديل 🔄");
+        if(sessionItems.length > 0 && !confirm("القائمة الحالية غير فارغة. هل تريد مسحها؟")) return;
+        sessionItems = JSON.parse(JSON.stringify(sent[index].items)); renderSessionList(); closeModal('sentSessionsModal'); showToast("تم استرجاع الجلسة للتعديل 🔄");
     }
 
     function deleteSentSession(index) {
-        if(confirm("هل أنت متأكد من حذف هذا السجل من الأرشيف؟")) {
+        if(confirm("هل أنت متأكد من حذف هذا السجل؟")) {
             let sent = JSON.parse(localStorage.getItem('companion_sent_' + currentUser) || '[]');
-            sent.splice(index, 1);
-            localStorage.setItem('companion_sent_' + currentUser, JSON.stringify(sent));
-            renderSentSessions(); 
+            sent.splice(index, 1); localStorage.setItem('companion_sent_' + currentUser, JSON.stringify(sent)); renderSentSessions(); 
         }
     }
 
-    // --- الوظائف الأساسية (السحابة، البحث، الإرسال) ---
-
-    // دالة سحب وعرض النسخ الاحتياطية المتاحة 
     function fetchCloudDB(isAutoLoad = false) {
         if (!isAutoLoad) showToast("⏳ جاري البحث عن النسخ المتاحة...");
-
         db.ref('backups_' + currentUser).once('value').then(snap => {
             const backups = snap.val();
-
             if (backups) {
                 if (isAutoLoad) {
-                    // --- التحميل التلقائي لأول نسخة متاحة وممتلئة ---
-                    let isLoaded = false;
                     for (const slotKey of Object.keys(backups)) {
-                        const backupNode = backups[slotKey];
-                        if (backupNode && backupNode.data && backupNode.data.length > 0) {
-                            inventoryDB = backupNode.data;
-                            if(sessionItems.length === 0) {
-                                showToast(`تم تحميل قاعدة البيانات (${slotKey}) تلقائياً ✅`);
-                            }
-                            isLoaded = true;
-                            break; // التوقف فور إيجاد أول قاعدة بيانات صالحة
+                        if (backups[slotKey] && backups[slotKey].data && backups[slotKey].data.length > 0) {
+                            inventoryDB = backups[slotKey].data;
+                            if(sessionItems.length === 0) showToast(`تم تحميل قاعدة البيانات (${slotKey}) تلقائياً ✅`);
+                            break;
                         }
                     }
-                    if (!isLoaded) console.log("جميع النسخ الاحتياطية فارغة.");
-                } else {
-                    // --- الفتح اليدوي للنافذة لاختيار أو تغيير النسخة ---
-                    renderBackupsList(backups);
-                    openModal('backupModal');
-                }
-            } else {
-                if (!isAutoLoad) alert("لا توجد نسخ احتياطية محفوظة في السحابة لهذا المستخدم.");
-            }
-        }).catch(err => {
-            if (!isAutoLoad) alert("خطأ في الاتصال: " + err.message);
-            console.error(err);
-        });
+                } else { renderBackupsList(backups); openModal('backupModal'); }
+            } else if (!isAutoLoad) alert("لا توجد نسخ احتياطية.");
+        }).catch(err => { if (!isAutoLoad) alert("خطأ في الاتصال: " + err.message); });
     }
 
-    // دالة رسم أزرار النسخ الاحتياطية داخل النافذة المنبثقة 
     function renderBackupsList(backups) {
-        const container = document.getElementById('backupListContainer');
-        container.innerHTML = '';
-        
+        const container = document.getElementById('backupListContainer'); container.innerHTML = '';
         let hasValidBackups = false;
-
         Object.keys(backups).forEach(slotKey => {
-            const backupNode = backups[slotKey];
-            
-            if (backupNode && backupNode.data && backupNode.data.length > 0) {
+            if (backups[slotKey] && backups[slotKey].data && backups[slotKey].data.length > 0) {
                 hasValidBackups = true;
-                
-                const dateStr = backupNode.date || "تاريخ غير متوفر";
-                const itemsCount = backupNode.data.length;
-                
-                const btn = document.createElement('button');
-                btn.className = 'user-btn'; 
-                btn.style.textAlign = 'right';
-                btn.innerHTML = `
-                    <div style="color: var(--primary); font-size: 16px;">📁 ${slotKey}</div>
-                    <div style="font-size: 13px; color: #666; font-weight: normal; margin-top: 5px;">
-                        📅 ${dateStr} <br> 📦 ${itemsCount} مادة
-                    </div>
-                `;
-                
-                btn.onclick = () => {
-                    inventoryDB = backupNode.data;
-                    closeModal('backupModal');
-                    showToast(`تم اعتماد النسخة (${slotKey}) بنجاح ✅`);
-                };
-                
+                const btn = document.createElement('button'); btn.className = 'user-btn'; btn.style.textAlign = 'right';
+                btn.innerHTML = `<div style="color: var(--primary); font-size: 16px;">📁 ${slotKey}</div><div style="font-size: 13px; color: #666; margin-top: 5px;">📅 ${backups[slotKey].date || "غير متوفر"} <br> 📦 ${backups[slotKey].data.length} مادة</div>`;
+                btn.onclick = () => { inventoryDB = backups[slotKey].data; closeModal('backupModal'); showToast(`تم اعتماد (${slotKey}) ✅`); };
                 container.appendChild(btn);
             }
         });
-        
-        if (!hasValidBackups) {
-            container.innerHTML = '<p style="color:#999; text-align:center;">جميع النسخ الموجودة فارغة.</p>';
-        }
+        if (!hasValidBackups) container.innerHTML = '<p style="color:#999; text-align:center;">النسخ الموجودة فارغة.</p>';
     }
 
     function getCalculatedMonthlyNeed(item) {
-        let aNeed = parseFloat(item.annual_need) || 0;
-        let mNeed = parseFloat(item.monthly_need) || 0;
-        if (mNeed > 0 && aNeed === 0) return mNeed;
-        else if (aNeed > 0) return Math.round(aNeed / 12);
-        return 0;
+        let aNeed = parseFloat(item.annual_need) || 0; let mNeed = parseFloat(item.monthly_need) || 0;
+        if (mNeed > 0 && aNeed === 0) return mNeed; else if (aNeed > 0) return Math.round(aNeed / 12); return 0;
     }
 
+    // --- الدالة المحدثة للبحث وعرض زر الإضافة ---
     function searchItems() {
         const query = document.getElementById('searchInput').value.toLowerCase().trim();
-        const box = document.getElementById('suggestionsBox');
-        box.innerHTML = '';
+        const box = document.getElementById('suggestionsBox'); box.innerHTML = '';
+        
         if(query.length === 0) { box.style.display = 'none'; return; }
-
+        
         const matches = inventoryDB.filter(i => (i.name && i.name.toLowerCase().includes(query)) || (i.code && String(i.code).includes(query)));
         
         if(matches.length > 0) {
             box.style.display = 'block';
             matches.slice(0, 20).forEach(item => {
-                const li = document.createElement('li');
+                const li = document.createElement('li'); 
                 const mNeed = getCalculatedMonthlyNeed(item);
-                let htmlContent = `<span>${item.name}</span>`;
-                if(mNeed > 0) {
-                    li.className = 'has-need';
-                    htmlContent += `<span class="need-badge">احتياج: ${mNeed}</span>`;
+                
+                if(mNeed > 0) { li.className = 'has-need'; }
+                
+                // إنشاء قسم اسم المادة
+                const titleSpan = document.createElement('span');
+                titleSpan.innerText = item.name;
+                titleSpan.style.flex = "1";
+                titleSpan.style.wordBreak = "break-word";
+                
+                // إنشاء قسم يحتوي على الباجات (الاحتياج + الإضافة)
+                const badgesDiv = document.createElement('div');
+                badgesDiv.style.cssText = "display: flex; gap: 5px; align-items: center; flex-shrink: 0;";
+                
+                // باج الاحتياج (إن وجد)
+                if(mNeed > 0) { 
+                    const needSpan = document.createElement('span');
+                    needSpan.className = 'need-badge';
+                    needSpan.innerText = `احتياج: ${mNeed}`;
+                    badgesDiv.appendChild(needSpan);
                 }
-                li.innerHTML = htmlContent;
-                li.onclick = () => addItemToSession(item, mNeed);
+                
+                // زر الإضافة الجديد
+                const addBtn = document.createElement('button');
+                addBtn.className = 'add-badge';
+                
+                // التحقق إذا كانت المادة مضافة مسبقاً لعرض الزر بلون أخضر تلقائياً
+                const isAlreadyAdded = sessionItems.find(i => i.name === item.name);
+                if(isAlreadyAdded) {
+                    addBtn.innerText = 'تم الإضافة ✔';
+                    addBtn.classList.add('added');
+                } else {
+                    addBtn.innerText = 'إضافة +';
+                }
+
+                // حدث النقر على زر الإضافة
+                addBtn.onclick = (e) => {
+                    e.stopPropagation(); // يمنع انتقال النقر إلى (li) وبالتالي لا يغلق القائمة
+                    addSingleItemKeepOpen(item, mNeed, addBtn);
+                };
+                
+                badgesDiv.appendChild(addBtn);
+                
+                li.appendChild(titleSpan);
+                li.appendChild(badgesDiv);
+                
+                // النقر على باقي السطر (li) يُضيف المادة ويغلق القائمة (حسب السلوك القديم)
+                li.onclick = () => addItemToSession(item, mNeed); 
+                
                 box.appendChild(li);
             });
-        } else { box.style.display = 'none'; }
+        } else { 
+            box.style.display = 'none'; 
+        }
+    }
+
+    // --- دالة الإضافة المتعددة التي تحافظ على القائمة مفتوحة ---
+    function addSingleItemKeepOpen(item, mNeed, btn) {
+        if(sessionItems.find(i => i.name === item.name)) { 
+            showToast("المادة مضافة مسبقاً في القائمة."); 
+            return; 
+        }
+        
+        sessionItems.push({ 
+            name: item.name, 
+            code: item.code || "", 
+            unit: item.unit || "", 
+            qty_buy: mNeed > 0 ? mNeed : "", 
+            stock: 0, 
+            monthly_consumption: 0, 
+            annual_need: item.annual_need || 0, 
+            monthly_need: mNeed, 
+            cost: item.cost || 0, 
+            notes: "", 
+            isFromSession: true, 
+            isAutoFilled: (mNeed > 0) 
+        });
+        
+        renderSessionList(); 
+        
+        btn.innerText = 'تم الإضافة ✔';
+        btn.classList.add('added');
     }
 
     function addItemToSession(item, mNeed) {
         if(sessionItems.find(i => i.name === item.name)) { alert("المادة مضافة مسبقاً."); return; }
-
-        let initialQty = mNeed > 0 ? mNeed : "";
-        sessionItems.push({
-            name: item.name, code: item.code || "", unit: item.unit || "", qty_buy: initialQty,
-            stock: 0, monthly_consumption: 0, annual_need: item.annual_need || 0,
-            monthly_need: mNeed, cost: item.cost || 0, notes: "", isFromSession: true, isAutoFilled: (mNeed > 0)
-        });
-
-        document.getElementById('searchInput').value = '';
-        document.getElementById('suggestionsBox').style.display = 'none';
-        renderSessionList();
+        sessionItems.push({ name: item.name, code: item.code || "", unit: item.unit || "", qty_buy: mNeed > 0 ? mNeed : "", stock: 0, monthly_consumption: 0, annual_need: item.annual_need || 0, monthly_need: mNeed, cost: item.cost || 0, notes: "", isFromSession: true, isAutoFilled: (mNeed > 0) });
+        document.getElementById('searchInput').value = ''; document.getElementById('suggestionsBox').style.display = 'none'; renderSessionList();
     }
 
-    function updateQty(index, value) {
-        sessionItems[index].qty_buy = value;
-        sessionItems[index].isAutoFilled = false; 
-        renderSessionList();
-    }
-
+    function updateQty(index, value) { sessionItems[index].qty_buy = value; sessionItems[index].isAutoFilled = false; renderSessionList(); }
     function removeItem(index) { sessionItems.splice(index, 1); renderSessionList(); }
 
     function renderSessionList() {
-        // حفظ تلقائي للقائمة الحالية لمنع فقدانها عند عمل ريفرش
-        if(currentUser) {
-            localStorage.setItem('companion_current_session_' + currentUser, JSON.stringify(sessionItems));
-        }
-
-        const list = document.getElementById('sessionList');
-        document.getElementById('itemsCount').innerText = sessionItems.length;
-        
-        if(sessionItems.length === 0) {
-            list.innerHTML = '<div style="text-align:center; color:#999; margin-top:30px; font-size: 14px;">لم يتم اختيار أي مواد.</div>';
-            return;
-        }
-
+        if(currentUser) localStorage.setItem('companion_current_session_' + currentUser, JSON.stringify(sessionItems));
+        const list = document.getElementById('sessionList'); document.getElementById('itemsCount').innerText = sessionItems.length;
+        if(sessionItems.length === 0) { list.innerHTML = '<div style="text-align:center; color:#999; margin-top:30px; font-size: 14px;">لم يتم اختيار أي مواد.</div>'; return; }
         list.innerHTML = '';
         sessionItems.forEach((item, index) => {
-            const div = document.createElement('div');
-            const mNeed = parseFloat(item.monthly_need) || 0;
+            const div = document.createElement('div'); const mNeed = parseFloat(item.monthly_need) || 0;
             div.className = mNeed > 0 ? 'item-card has-need-card' : 'item-card';
-            const inputClass = item.isAutoFilled ? 'auto-filled' : '';
-
-            div.innerHTML = `
-                <div class="item-title">
-                    <span>${item.name}</span>
-                    ${mNeed > 0 ? `<span class="need-badge">الاحتياج: ${mNeed}</span>` : ''}
-                </div>
-                <div class="item-controls">
-                    <input type="number" class="${inputClass}" placeholder="الكمية المطلوبة..." value="${item.qty_buy}" onchange="updateQty(${index}, this.value)">
-                    <button class="btn-remove" onclick="removeItem(${index})">X</button>
-                </div>
-            `;
+            div.innerHTML = `<div class="item-title"><span>${item.name}</span>${mNeed > 0 ? `<span class="need-badge">الاحتياج: ${mNeed}</span>` : ''}</div>
+                <div class="item-controls"><input type="number" class="${item.isAutoFilled ? 'auto-filled' : ''}" placeholder="الكمية المطلوبة..." value="${item.qty_buy}" onchange="updateQty(${index}, this.value)">
+                <button class="btn-remove" onclick="removeItem(${index})">X</button></div>`;
             list.appendChild(div);
         });
-
-        setTimeout(() => { window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' }); }, 50);
     }
 
     function renderUsersList() {
-        const container = document.getElementById('usersList');
-        container.innerHTML = '';
+        const container = document.getElementById('usersList'); container.innerHTML = '';
         Object.keys(USERS).forEach(user => {
             if(user === currentUser) return;
-            const btn = document.createElement('button');
-            btn.className = 'user-btn';
-            btn.innerText = user;
-            btn.onclick = () => sendSessionTo(user);
-            container.appendChild(btn);
+            const btn = document.createElement('button'); btn.className = 'user-btn'; btn.innerText = user;
+            btn.onclick = () => sendSessionTo(user); container.appendChild(btn);
         });
     }
 
-    function openSendModal() {
-        if(sessionItems.length === 0) { alert("أضف مواد أولاً!"); return; }
-        openModal('sendModal');
-    }
-
-   function getRoomId(u1, u2) {
-        // تطابق تام مع دالة ترتيب الغرف في النظام الرئيسي
-        const users = [u1, u2].sort();
-        return `${users[0]}_${users[1]}`;
-    }
+    function openSendModal() { if(sessionItems.length === 0) { alert("أضف مواد أولاً!"); return; } openModal('sendModal'); }
+    function getRoomId(u1, u2) { const users = [u1, u2].sort(); return `${users[0]}_${users[1]}`; }
 
     function sendSessionTo(targetUser) {
         closeModal('sendModal');
         const roomId = getRoomId(currentUser, targetUser);
-        const newMsgRef = db.ref('chats/' + roomId).push();
-        
         const itemsCopy = JSON.parse(JSON.stringify(sessionItems));
         
-        // --- التحديث الجديد: الهيكلية المطابقة تماماً لبرنامج 138 ---
         const msgData = {
             sender: currentUser, 
             type: 'session', 
             content: '',
             timestamp: firebase.database.ServerValue.TIMESTAMP,
             isRead: false, 
-            // تم تغليف البيانات في كائن ليتعرف عليها النظام الجديد بنجاح ويُطلق الإشعارات
             sessionData: {
                 sessionType: 'main',
                 sessionData: itemsCopy,
@@ -847,27 +1134,39 @@
             }
         };
 
-        newMsgRef.set(msgData).then(() => {
-            alert(`تم إرسال الجلسة إلى د. ${targetUser} بنجاح! ✅`);
-            logSentSession(targetUser, itemsCopy);
-            sessionItems = [];
+        db.ref('chats/' + roomId).push().set(msgData).then(() => {
+            alert(`تم إرسال الجلسة إلى د. ${targetUser} بنجاح! ✅`); 
+            logSentSession(targetUser, itemsCopy); 
+            sessionItems = []; 
             renderSessionList();
-        }).catch(e => { 
-            alert("حدث خطأ أثناء الإرسال: " + e.message); 
-        });
+        }).catch(e => alert("حدث خطأ أثناء الإرسال: " + e.message));
     }
 
     function showToast(msgText) {
-        // لتجنب تكرار التوست في نفس اللحظة
-        const oldToast = document.getElementById('appToast');
-        if(oldToast) oldToast.remove();
-
-        const msg = document.createElement('div');
-        msg.id = 'appToast';
-        msg.innerText = msgText;
+        const oldToast = document.getElementById('appToast'); if(oldToast) oldToast.remove();
+        const msg = document.createElement('div'); msg.id = 'appToast'; msg.innerText = msgText;
         msg.style = "position:fixed; top:70px; left:50%; transform:translateX(-50%); background:var(--dark); color:white; padding:8px 20px; border-radius:20px; font-size:13px; z-index:9999; box-shadow:0 4px 10px rgba(0,0,0,0.2);";
-        document.body.appendChild(msg);
-        setTimeout(() => msg.remove(), 2500);
+        document.body.appendChild(msg); setTimeout(() => msg.remove(), 2500);
+    }
+    
+    function showNewMessageAlert(senderName) {
+        const oldToast = document.getElementById('msgAlertToast'); 
+        if(oldToast) oldToast.remove();
+        
+        const msg = document.createElement('div'); 
+        msg.id = 'msgAlertToast'; 
+        msg.innerHTML = `💬 رسالة جديدة من د. <b>${senderName}</b>`;
+        
+        msg.style = "position:fixed; top:20px; left:50%; transform:translateX(-50%); background:var(--success); color:white; padding:12px 25px; border-radius:10px; font-size:15px; z-index:9999; box-shadow:0 5px 15px rgba(0,0,0,0.3); cursor: pointer; transition: 0.3s; border: 2px solid white;";
+        
+        msg.onclick = () => {
+            msg.remove();
+            openModal('chatModal');
+            loadChatWith(senderName);
+        };
+        
+        document.body.appendChild(msg); 
+        setTimeout(() => { if(document.getElementById('msgAlertToast')) msg.remove(); }, 4000);
     }
 </script>
 </body>
